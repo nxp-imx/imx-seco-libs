@@ -23,6 +23,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
+#elif defined(__ghs__)
+#include <sys/types.h>
 #endif
 
 /**

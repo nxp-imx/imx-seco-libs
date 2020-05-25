@@ -1,7 +1,5 @@
-
-all: she_test hsm_test v2x_test she_lib.a seco_nvm_manager.a hsm_lib.a
-
-CFLAGS = -O1 -Werror -fPIC
+CFLAGS ?= -O1 -Werror -fPIC
+ARFLAGS ?= rcs
 DESTDIR ?= export
 BINDIR ?= /usr/bin
 LIBDIR ?= /usr/lib
@@ -15,8 +13,17 @@ ifeq ($(TARGET_FLAVOR), linux)
 LIBS = -lpthread -lz
 else ifeq ($(TARGET_FLAVOR), qnx)
 LIBS = -lz
+else ifeq ($(TARGET_FLAVOR), ghs)
+LIBS = -lposix -lzlib -lz
 else
 $(error Type of OS defined by TARGET_FLAVOR variable is not supported)
+endif
+
+# Do not build tests for GHS
+ifneq ($(TARGET_FLAVOR), ghs)
+all: she_test hsm_test v2x_test she_lib.a seco_nvm_manager.a hsm_lib.a
+else
+all: she_lib.a seco_nvm_manager.a hsm_lib.a
 endif
 
 %.o: src/%.c
@@ -24,15 +31,15 @@ endif
 
 # SHE lib
 she_lib.a: she_lib.o seco_utils.o seco_sab_messaging.o seco_os_abs_$(TARGET_FLAVOR).o
-	$(AR) rcs $@ $^
+	$(AR) $(ARFLAGS) -o $@ $^
 
 # HSM lib
 hsm_lib.a: hsm_lib.o seco_utils.o seco_sab_messaging.o seco_os_abs_$(TARGET_FLAVOR).o
-	$(AR) rcs $@ $^
+	$(AR) $(ARFLAGS) -o $@ $^
 
 # NVM manager lib
 seco_nvm_manager.a: seco_nvm_manager.o
-	$(AR) rcs $@ $^
+	$(AR) $(ARFLAGS) -o $@ $^
 
 #SHE test components
 ifdef DEBUG
