@@ -24,6 +24,7 @@
 #include <zlib.h>
 #include <pthread.h>
 #include <sys/iomsg.h>
+#include <devctl.h>
 #include "she_api.h"
 #include "seco_os_abs.h"
 #include "seco_mu_ioctl.h"
@@ -271,14 +272,26 @@ uint64_t seco_os_abs_data_buf(struct seco_os_abs_hdl *phdl, uint8_t *src, uint32
 {
     struct seco_mu_ioctl_setup_iobuf    io;
     int32_t                             err;
+    int                                 ret;
+    iov_t                               iov[2];
 
     io.user_buf = src;
     io.length = size;
     io.flags = flags;
 
-    err = ioctl(phdl->fd, SECO_MU_IOCTL_SETUP_IOBUF, &io);
+    /* Set up the IOV to point to both parts */
+    SETIOV(&iov[0], &io, sizeof(io));
+    SETIOV(&iov[1], src, size);
 
-    if (err != 0) {
+    ret = devctlv(phdl->fd,
+                  SECO_MU_IOCTL_SETUP_IOBUF,
+                  ((flags & SECO_MU_IO_FLAGS_IS_INTPUT) != 0 ) ? 2 : 1,
+                  1,
+                  iov,
+                  iov,
+                  (int *)&err);
+
+    if ((err != 0) || (ret != EOK)) {
         io.seco_addr = 0;
     }
 
