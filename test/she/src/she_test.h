@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NXP
+ * Copyright 2019-2020 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -15,6 +15,10 @@
 #define __she_test_h__
 
 #include "she_api.h"
+
+#if defined(__QNXNTO__)
+    #define CLOCK_MONOTONIC_RAW CLOCK_MONOTONIC
+#endif
 
 typedef struct
 {

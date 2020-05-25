@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NXP
+ * Copyright 2019-2020 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -19,7 +19,7 @@
 #if defined(__KERNEL__)
 /* Linux kernel */
 #include <linux/types.h>
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__QNXNTO__)
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
