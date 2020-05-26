@@ -65,9 +65,17 @@ int prepare_fs(void)
     return 0;
 }
 
+uint32_t seco_os_abs_has_v2x_hw(void)
+{
+    return 0;
+}
+
+
 struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_mu_params *mu_params)
 {
     struct seco_os_abs_hdl *phdl = malloc(sizeof(struct seco_os_abs_hdl));
+    char *resname = NULL;
+    Value is_listener;
 
     if (prepare_fs()) {
         return NULL;
