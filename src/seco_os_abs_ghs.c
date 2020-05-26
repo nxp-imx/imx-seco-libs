@@ -41,6 +41,13 @@ static char SECO_NVM_SHE_STORAGE_FILE[] = "/crypto/seco_she_nvm";
 static char SECO_NVM_HSM_STORAGE_FILE[] = "/crypto/seco_hsm/seco_nvm_master";
 static char SECO_NVM_HSM_STORAGE_CHUNK_PATH[] = "/crypto/seco_hsm/";
 
+/* SECO MU Resource names used for SHE */
+#define SECO_SHE_RES     "seco_mu_1_ch0"
+#define SECO_SHE_NVM_RES "seco_mu_1_ch1"
+/* SECO MU Resource names used for HSM */
+#define SECO_HSM_RES     "seco_mu_2_ch0"
+#define SECO_HSM_NVM_RES "seco_mu_2_ch1"
+
 int prepare_fs(void)
 {
     int err;
@@ -88,7 +95,31 @@ struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_m
 
             mu_params->interrupt_idx = SHE_DEFAULT_INTERRUPT_IDX;
 
-            if (seco_mu_open(&phdl->seco_mu, type) != Success) {
+            switch (type) {
+                case MU_CHANNEL_SECO_SHE:
+                    resname = SECO_SHE_RES;
+                    break;
+                case MU_CHANNEL_SECO_SHE_NVM:
+                    resname = SECO_SHE_NVM_RES;
+                    is_listener = 1u;
+                    break;
+                case MU_CHANNEL_SECO_HSM:
+                    resname = SECO_HSM_RES;
+                    break;
+                case MU_CHANNEL_SECO_HSM_NVM:
+                    resname = SECO_HSM_NVM_RES;
+                    is_listener = 1u;
+                    break;
+                default:
+                    printf("Unsupported channel number!\n");
+                    break;
+            }
+
+            if (!resname) {
+                return NULL;
+            }
+
+            if (seco_mu_open(&phdl->seco_mu, type, resname, is_listener) != Success) {
                 free(phdl);
                 phdl = NULL;
             }
@@ -174,10 +205,10 @@ int32_t seco_os_abs_storage_write(struct seco_os_abs_hdl *phdl, uint8_t *src, ui
     char *path;
 
     switch(phdl->type) {
-    case MU_CHANNEL_SHE_NVM:
+    case MU_CHANNEL_SECO_SHE_NVM:
         path = SECO_NVM_SHE_STORAGE_FILE;
         break;
-    case MU_CHANNEL_HSM_NVM:
+    case MU_CHANNEL_SECO_HSM_NVM:
         path = SECO_NVM_HSM_STORAGE_FILE;
         break;
     default:
@@ -206,10 +237,10 @@ int32_t seco_os_abs_storage_read(struct seco_os_abs_hdl *phdl, uint8_t *dst, uin
     char *path;
 
     switch(phdl->type) {
-    case MU_CHANNEL_SHE_NVM:
+    case MU_CHANNEL_SECO_SHE_NVM:
         path = SECO_NVM_SHE_STORAGE_FILE;
         break;
-    case MU_CHANNEL_HSM_NVM:
+    case MU_CHANNEL_SECO_HSM_NVM:
         path = SECO_NVM_HSM_STORAGE_FILE;
         break;
     default:
@@ -240,7 +271,7 @@ int32_t seco_os_abs_storage_write_chunk(struct seco_os_abs_hdl *phdl, uint8_t *s
     int n = -1;
     char *path = malloc(sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u);
 
-    if ((path != NULL) && (phdl->type == MU_CHANNEL_HSM_NVM)) {
+    if ((path != NULL) && (phdl->type == MU_CHANNEL_SECO_HSM_NVM)) {
         (void)mkdir(SECO_NVM_HSM_STORAGE_CHUNK_PATH, S_IRUSR|S_IWUSR);
         n = snprintf(path, sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u,
                         "%s%016lx", SECO_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
@@ -269,7 +300,7 @@ int32_t seco_os_abs_storage_read_chunk(struct seco_os_abs_hdl *phdl, uint8_t *ds
     int n = -1;
     char *path = malloc(sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u);
 
-    if ((path != NULL) && (phdl->type == MU_CHANNEL_HSM_NVM)) {
+    if ((path != NULL) && (phdl->type == MU_CHANNEL_SECO_HSM_NVM)) {
         n = snprintf(path, sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u,
                         "%s%016lx",SECO_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
     }
