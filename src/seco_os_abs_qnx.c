@@ -86,8 +86,10 @@ void *buffer_transfer_thread(void *data)
         /* Set up the IOV to point to both parts */
         SETIOV (&iov[0], &io_hdr, sizeof(io_hdr.i));
         SETIOV (&iov[1], &iobuf, sizeof(struct seco_mu_ioctl_setup_iobuf));
+        do {
+            error = MsgSendv(phdl->fd, iov, 1, iov, 2);
+        } while (error == -ETIME);
 
-        error = MsgSendv(phdl->fd, iov, 1, iov, 2);
         if (error == EOK) {
             io_hdr.i.type = SECO_BUFFER_TRANSFER;
             io_hdr.i.dcmd = 0;
@@ -102,11 +104,9 @@ void *buffer_transfer_thread(void *data)
                 /* Receive (read) buffer from resource manager */
                 error = MsgSendv(phdl->fd, iov, 1, iov, 2);
             }
-            if (error == ECANCELED) {
+            if (error != EOK) {
                 break;
             }
-        } else if (error == ECANCELED) {
-            break;
         }
     }
     return NULL;
@@ -251,7 +251,13 @@ int32_t seco_os_abs_send_mu_message(struct seco_os_abs_hdl *phdl, uint32_t *mess
 /* Read a message from Seco on the MU. Return the size of the data that were read. */
 int32_t seco_os_abs_read_mu_message(struct seco_os_abs_hdl *phdl, uint32_t *message, uint32_t size)
 {
-    return (int32_t)read(phdl->fd, message, size);
+    int32_t error;
+
+     do {
+         error = (int32_t)read(phdl->fd, message, size);
+     } while (error == -ETIME);
+
+     return error;
 }
 
 /* Map the shared buffer allocated by Seco. */
@@ -454,12 +460,24 @@ int32_t seco_os_abs_send_signed_message(struct seco_os_abs_hdl *phdl, uint8_t *s
     /* Send the message to the kernel that will forward to SCU.*/
     struct seco_mu_ioctl_signed_message msg;
     int32_t                             err = 0;
+    int                                 ret;
+    iov_t                               iov[2];
 
     msg.message = signed_message;
     msg.msg_size = msg_len;
-    err = ioctl(phdl->fd, SECO_MU_IOCTL_SIGNED_MESSAGE, &msg);
 
-    if (err == 0) {
+    /* Set up the IOV to point to both parts */
+    SETIOV(&iov[0], &msg, sizeof(msg));
+    SETIOV(&iov[1], signed_message, msg_len);
+
+    ret = devctlv(phdl->fd,
+                  SECO_MU_IOCTL_SIGNED_MESSAGE,
+                  2,
+                  1,
+                  iov,
+                  iov,
+                  (int *)&err);
+    if ((err == 0) && (ret == EOK)) {
         err = (int32_t)msg.error_code;
     }
 
