@@ -82,7 +82,7 @@ struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_m
 {
     struct seco_os_abs_hdl *phdl = malloc(sizeof(struct seco_os_abs_hdl));
     char *resname = NULL;
-    Value is_listener;
+    Value is_listener = 0;
 
     if (prepare_fs()) {
         return NULL;
