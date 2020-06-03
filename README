@@ -7,6 +7,9 @@ For linux OS:
 	$ make
 
 For QNX RTOS:
+	$ export PATH=$PATH:<compiler path>
+	$ export QNX_TARGET=<path to QNX SDP>/target/qnx7
+	$ export QNX_HOST=<path to QNX SDP>/host/linux/x86_64
 	$ export AR=ntoaarch64-ar
 	$ export CC=ntoaarch64-gcc
 	$ export TARGET_FLAVOR=qnx
@@ -27,4 +30,5 @@ For GHS OS:
 	$ export AR="cxarm64 -archive"
 	$ export CFLAGS="-O1 ${GHS_INC} -gnu99"
 	$ export ARFLAGS=""
+
 	$ make
