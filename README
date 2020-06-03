@@ -16,6 +16,8 @@ For QNX RTOS:
 
 	$ make
 
+Note: /tmp folder is used for NVM storage by default, for using NVM storage please change path in "seco_os_abs_qnx.c" file.
+
 For GHS OS:
 	$ export PATH=$PATH:<compiler path>
 	$ export GHS_BASE_BSP=<path to base BSP>
