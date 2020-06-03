@@ -1,1 +1,19 @@
-source code for iMX8 SHE driver
+source code for iMX8 SHE/HSM drivers
+
+
+How to build SHE/HSM libraries:
+For linux OS:
+
+	$ make
+
+For QNX RTOS:
+	$ export AR=ntoaarch64-ar
+	$ export CC=ntoaarch64-gcc
+	$ export TARGET_FLAVOR=qnx
+
+	$ make
+
+Note: QNX build variables (QNX_TARGET, QNX_HOST) must be defined.
+
+For GHS OS:
+	$ make
