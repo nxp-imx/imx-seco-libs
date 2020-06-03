@@ -16,4 +16,15 @@ For QNX RTOS:
 Note: QNX build variables (QNX_TARGET, QNX_HOST) must be defined.
 
 For GHS OS:
+	$ export PATH=$PATH:<compiler path>
+	$ export GHS_BASE_BSP=<path to base BSP>
+	$ export GHS_EXT_BSP=<path to extended BSP>
+	$ export GHS_INC="-I ${GHS_BASE_BSP}/INTEGRITY-include "
+	$ export GHS_INC+="-I ${GHS_EXT_BSP}/bspsrc/driver/crypto "
+	$ export TARGET_FLAVOR=ghs
+	$ export CC="ccarm64"
+	$ export LD="cxarm64"
+	$ export AR="cxarm64 -archive"
+	$ export CFLAGS="-O1 ${GHS_INC} -gnu99"
+	$ export ARFLAGS=""
 	$ make
