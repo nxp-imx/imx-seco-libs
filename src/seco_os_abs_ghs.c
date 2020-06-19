@@ -172,12 +172,14 @@ int32_t seco_os_abs_configure_shared_buf(struct seco_os_abs_hdl *phdl, uint32_t 
 
 uint64_t seco_os_abs_data_buf(struct seco_os_abs_hdl *phdl, uint8_t *src, uint32_t size, uint32_t flags)
 {
-    uint64_t seco_addr;
+    uint64_t seco_addr = 0UL;
 
-    if (flags & FLAG_WRITE) {
-        seco_addr = seco_shared_buff_write(&phdl->seco_mu, src, size, flags);
-    } else {
-        seco_addr = seco_shared_buff_read(&phdl->seco_mu, src, size, flags);
+    if ((src != (uint8_t*)NULL) && (size != 0U)) {
+        if (flags & FLAG_WRITE) {
+            seco_addr = seco_shared_buff_write(&phdl->seco_mu, src, size, flags);
+        } else {
+            seco_addr = seco_shared_buff_read(&phdl->seco_mu, src, size, flags);
+        }
     }
 
     return seco_addr;
