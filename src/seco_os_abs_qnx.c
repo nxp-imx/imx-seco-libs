@@ -35,6 +35,7 @@
 #define SHE_DEFAULT_INTERRUPT_IDX   0x0u
 #define SECO_BUFFER_GET_INFO        (_IO_MAX + 1u)
 #define SECO_BUFFER_TRANSFER        (_IO_MAX + 2u)
+#define SECO_BUFFER_TRANSFER_CANCEL (_IO_MAX + 3u)
 
 struct seco_os_abs_hdl {
     int32_t     fd;
@@ -77,36 +78,34 @@ void *buffer_transfer_thread(void *data)
     iov_t           iov[2];
     int32_t         error;
 
-
     while (1) {
-        io_hdr.i.type = SECO_BUFFER_GET_INFO;
-        io_hdr.i.dcmd = 0;
-        io_hdr.i.nbytes = sizeof(struct seco_mu_ioctl_setup_iobuf);
-
-        /* Set up the IOV to point to both parts */
-        SETIOV (&iov[0], &io_hdr, sizeof(io_hdr.i));
-        SETIOV (&iov[1], &iobuf, sizeof(struct seco_mu_ioctl_setup_iobuf));
         do {
-            error = MsgSendv(phdl->fd, iov, 1, iov, 2);
+            io_hdr.i.type = SECO_BUFFER_GET_INFO;
+            io_hdr.i.dcmd = 0;
+            io_hdr.i.combine_len = 0;
+            io_hdr.i.nbytes = sizeof(struct seco_mu_ioctl_setup_iobuf);
+            /* Set up the IOV to point to both parts */
+            SETIOV (&iov[0], &io_hdr, sizeof(io_hdr.i));
+            SETIOV (&iov[1], &iobuf, sizeof(struct seco_mu_ioctl_setup_iobuf));
+            error = MsgSendv(phdl->fd, &iov[0], 1, &iov[1], 1);
         } while (error == -ETIME);
 
         if (error == EOK) {
-            io_hdr.i.type = SECO_BUFFER_TRANSFER;
-            io_hdr.i.dcmd = 0;
-            io_hdr.i.nbytes = iobuf.length;
-            /* Set up the IOV to point to both parts */
-            SETIOV (&iov[0], &io_hdr, sizeof(io_hdr.i));
-            SETIOV (&iov[1], iobuf.user_buf, iobuf.length);
-            if (iobuf.flags & DATA_BUF_IS_INPUT) {
-                /* Send (write) buffer to resource manager */
-                error = MsgSendv(phdl->fd, iov, 2, iov, 1);
-            } else {
+            do {
+                io_hdr.i.type = SECO_BUFFER_TRANSFER;
+                io_hdr.i.dcmd = 0;
+                io_hdr.i.nbytes = iobuf.length;
+                /* Set up the IOV to point to both parts */
+                SETIOV (&iov[0], &io_hdr, sizeof(io_hdr.i));
+                SETIOV (&iov[1], iobuf.user_buf, iobuf.length);
                 /* Receive (read) buffer from resource manager */
-                error = MsgSendv(phdl->fd, iov, 1, iov, 2);
-            }
+                error = MsgSendv(phdl->fd, iov, 1, &iov[1], 1);
+            } while (error == -ETIME);
             if (error != EOK) {
                 break;
             }
+        } else {
+            break;
         }
     }
     return NULL;
@@ -235,10 +234,23 @@ uint32_t seco_os_abs_has_v2x_hw(void)
 /* Close a previously opened session (SHE or storage). */
 void seco_os_abs_close_session(struct seco_os_abs_hdl *phdl)
 {
+    io_devctl_t     io_hdr;
+    iov_t           iov;
+
+    pthread_cancel(phdl->rx_buf_tid);
+
+    io_hdr.i.type = SECO_BUFFER_TRANSFER_CANCEL;
+    io_hdr.i.dcmd = 0;
+    io_hdr.i.combine_len = 0;
+    io_hdr.i.nbytes = sizeof(io_hdr.i);
+
+    /* Set up the IOV to point to both parts */
+    SETIOV (&iov, &io_hdr, sizeof(io_hdr.i));
+    (void)MsgSendv(phdl->fd, &iov, 1, NULL, 0);
+
     /* Close the device. */
     (void)close(phdl->fd);
 
-    pthread_cancel(phdl->rx_buf_tid);
     free(phdl);
 }
 
