@@ -29,7 +29,6 @@
 #include "she_test_storage_manager.h"
 
 #if defined(__QNXNTO__) || defined(__ghs__)
-typedef int ssize_t;
 
 ssize_t getline(char **buf, size_t *bufsiz, FILE *fp)
 {

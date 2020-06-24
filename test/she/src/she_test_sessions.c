@@ -89,4 +89,5 @@ uint32_t she_test_close_session(test_struct_t *testCtx, FILE *fp)
 
     /* Close session if it was opened. */
     she_close_session(testCtx->hdl[index]);
+    return 0;
 }

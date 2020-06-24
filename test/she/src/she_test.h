@@ -17,7 +17,11 @@
 #include "she_api.h"
 
 #if defined(__QNXNTO__)
+    typedef int ssize_t;
     #define CLOCK_MONOTONIC_RAW CLOCK_MONOTONIC
+#elif defined(__ghs__)
+    #include "ghsposix/pthread_create.h"
+    #define CLOCK_MONOTONIC_RAW CLOCK_REALTIME
 #endif
 
 typedef struct
