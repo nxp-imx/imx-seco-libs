@@ -17,7 +17,7 @@
 #include "she_api.h"
 
 #if defined(__QNXNTO__)
-    typedef int ssize_t;
+    #include <unistd.h>
     #define CLOCK_MONOTONIC_RAW CLOCK_MONOTONIC
 #elif defined(__ghs__)
     #include "ghsposix/pthread_create.h"
