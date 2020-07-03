@@ -58,17 +58,22 @@ int prepare_fs(void)
     if ((err != 0) && (errno != EEXIST)) {
         printf("Cannot create the /crypto folder! [%s]\n", strerror(errno));
         return 1;
-    } else if (err == 0) {
+    }
+#ifdef DEBUG
+    else if (err == 0) {
         printf("/crypto created \n");
     }
+#endif
     err = mkdir("/crypto/seco_hsm",0600);
     if ((err != 0) && (errno != EEXIST)) {
         printf("Cannot create the /crypto/seco_hsm folder! [%s]\n", strerror(errno));
         return 1;
-    } else if (err == 0){
+    }
+#ifdef DEBUG
+    else if (err == 0){
         printf("/crypto/seco_hsm created\n");
     }
-
+#endif
     return 0;
 }
 
