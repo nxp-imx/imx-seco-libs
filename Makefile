@@ -10,11 +10,11 @@ ifdef COVERAGE
 GCOV_FLAGS=-fprofile-arcs -ftest-coverage
 endif
 ifeq ($(TARGET_FLAVOR), linux)
-LIBS = -lpthread -lz
+LDFLAGS = -lpthread -lz
 else ifeq ($(TARGET_FLAVOR), qnx)
-LIBS = -lz
+LDFLAGS = -lz
 else ifeq ($(TARGET_FLAVOR), ghs)
-LIBS = -lposix -lzlib -lz
+LDFLAGS = -lposix -lzlib -lz
 else
 $(error Type of OS defined by TARGET_FLAVOR variable is not supported)
 endif
@@ -47,16 +47,16 @@ DEFINES=-DDEBUG
 endif
 HSM_TEST_OBJ=$(wildcard test/hsm/*.c)
 hsm_test: $(HSM_TEST_OBJ) hsm_lib.a seco_nvm_manager.a
-	$(CC) $^  -o $@ -I include -I include/hsm $(CFLAGS) $(LIBS) $(DEFINES) $(GCOV_FLAGS)
+	$(CC) $^  -o $@ -I include -I include/hsm $(CFLAGS) $(LDFLAGS) $(DEFINES) $(GCOV_FLAGS)
 
 SHE_TEST_OBJ=$(wildcard test/she/src/*.c)
 #SHE test app
 she_test: $(SHE_TEST_OBJ) she_lib.a seco_nvm_manager.a
-	$(CC) $^  -o $@ -I include $(CFLAGS) $(LIBS) $(DEFINES) $(GCOV_FLAGS)
+	$(CC) $^  -o $@ -I include $(CFLAGS) $(LDFLAGS) $(DEFINES) $(GCOV_FLAGS)
 
 V2X_TEST_OBJ=$(wildcard test/v2x/*.c)
 v2x_test: $(V2X_TEST_OBJ) hsm_lib.a
-	$(CC) $^  -o $@ -I include -I include/hsm $(CFLAGS) $(LIBS) $(DEFINES) $(GCOV_FLAGS)
+	$(CC) $^  -o $@ -I include -I include/hsm $(CFLAGS) $(LDFLAGS) $(DEFINES) $(GCOV_FLAGS)
 
 clean:
 	rm -rf she_test *.o *.gcno *.a hsm_test v2x_test $(TEST_OBJ) $(DESTDIR)
