@@ -50,31 +50,46 @@ static char SECO_NVM_HSM_STORAGE_CHUNK_PATH[] = "/crypto/seco_hsm/";
 
 int prepare_fs(void)
 {
-    int err;
+    int err = 0;
+    static volatile Address api_init = 0U;
+    static Boolean fs_initialisated = false;
 
-    WaitForFileSystemInitialization();
-
-    err = mkdir("/crypto",0600);
-    if ((err != 0) && (errno != EEXIST)) {
-        printf("Cannot create the /crypto folder! [%s]\n", strerror(errno));
-        return 1;
+    while (TestAndSet(&api_init, 0U, 1U) != Success) {
+        usleep(100);
     }
+    if (! fs_initialisated) {
+        WaitForFileSystemInitialization();
+        err = mkdir("/crypto",0600);
 #ifdef DEBUG
-    else if (err == 0) {
-        printf("/crypto created \n");
-    }
+        if ((err != 0) && (errno != EEXIST)) {
+            printf("Cannot create the /crypto folder! [%s]\n", strerror(errno));
+        }
+        else {
+            if (err == 0) {
+                printf("/crypto created \n");
+            }
+        }
 #endif
-    err = mkdir("/crypto/seco_hsm",0600);
-    if ((err != 0) && (errno != EEXIST)) {
-        printf("Cannot create the /crypto/seco_hsm folder! [%s]\n", strerror(errno));
-        return 1;
-    }
+        if (err == 0) {
+            err = mkdir("/crypto/seco_hsm",0600);
 #ifdef DEBUG
-    else if (err == 0){
-        printf("/crypto/seco_hsm created\n");
-    }
+            if ((err != 0) && (errno != EEXIST)) {
+                printf("Cannot create the /crypto/seco_hsm folder! [%s]\n", strerror(errno));
+            }
+            else {
+                if (err == 0){
+                    printf("/crypto/seco_hsm created\n");
+                }
+            }
 #endif
-    return 0;
+        }
+        if (err == 0) {
+            fs_initialisated = true;
+        }
+    }
+    api_init = 0U;
+   
+    return err;
 }
 
 uint32_t seco_os_abs_has_v2x_hw(void)
@@ -141,6 +156,7 @@ struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_m
 /* Close a previously opened session (SHE or storage). */
 void seco_os_abs_close_session(struct seco_os_abs_hdl *phdl)
 {
+    seco_mu_close(&phdl->seco_mu);
     free(phdl);
 }
 
