@@ -45,7 +45,7 @@ void seco_fill_cmd_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, ui
     }
     hdr->command = cmd;
     hdr->size = (uint8_t)(len / sizeof(uint32_t));
-};
+}
 
 /* Fill a response message header with a given command ID and length in bytes. */
 void seco_fill_rsp_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, uint32_t mu_type)
@@ -78,7 +78,7 @@ void seco_fill_rsp_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, ui
     }
     hdr->command = cmd;
     hdr->size = (uint8_t)(len / sizeof(uint32_t));
-};
+}
 
 /* Helper function to send a message and wait for the response. Return 0 on success.*/
 int32_t seco_send_msg_and_get_resp(struct seco_os_abs_hdl *phdl, uint32_t *cmd, uint32_t cmd_len, uint32_t *rsp, uint32_t rsp_len)

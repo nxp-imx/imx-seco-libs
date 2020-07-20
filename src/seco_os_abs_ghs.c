@@ -124,44 +124,37 @@ struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_m
     }
 
     if ((phdl != NULL) && (mu_params != NULL)) {
+        phdl->type = type;
 
-        if (phdl != NULL) {
-            phdl->type = type;
+        switch (type) {
+            case MU_CHANNEL_SECO_SHE:
+                resname = SECO_SHE_RES;
+                break;
+            case MU_CHANNEL_SECO_SHE_NVM:
+                resname = SECO_SHE_NVM_RES;
+                is_listener = 1u;
+                break;
+            case MU_CHANNEL_SECO_HSM:
+                resname = SECO_HSM_RES;
+                break;
+            case MU_CHANNEL_SECO_HSM_NVM:
+                resname = SECO_HSM_NVM_RES;
+                is_listener = 1u;
+                break;
+            default:
+                printf("Unsupported channel number!\n");
+                break;
+        }
 
+        if ((resname != NULL) && (seco_mu_open(&phdl->seco_mu, type, resname, is_listener) == Success)) {
             mu_params->interrupt_idx = SHE_DEFAULT_INTERRUPT_IDX;
-
-            switch (type) {
-                case MU_CHANNEL_SECO_SHE:
-                    resname = SECO_SHE_RES;
-                    break;
-                case MU_CHANNEL_SECO_SHE_NVM:
-                    resname = SECO_SHE_NVM_RES;
-                    is_listener = 1u;
-                    break;
-                case MU_CHANNEL_SECO_HSM:
-                    resname = SECO_HSM_RES;
-                    break;
-                case MU_CHANNEL_SECO_HSM_NVM:
-                    resname = SECO_HSM_NVM_RES;
-                    is_listener = 1u;
-                    break;
-                default:
-                    printf("Unsupported channel number!\n");
-                    break;
-            }
-
-            if (!resname) {
-                return NULL;
-            }
-
-            if (seco_mu_open(&phdl->seco_mu, type, resname, is_listener) != Success) {
-                free(phdl);
-                phdl = NULL;
-            }
-
             mu_params->mu_id = phdl->seco_mu.mu_id;
             mu_params->tz = phdl->seco_mu.tz;
             mu_params->did = phdl->seco_mu.did;
+        }
+        else {
+            free(phdl);
+            phdl = NULL;
         }
     }
 
@@ -394,3 +387,4 @@ int32_t seco_os_abs_send_signed_message(struct seco_os_abs_hdl *phdl, uint8_t *s
 
     return seco_err;
 }
+

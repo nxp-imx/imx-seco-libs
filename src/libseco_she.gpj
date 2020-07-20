@@ -1,0 +1,10 @@
+#!gbuild
+[Library]
+	-I${IMX8_EXT_SECO_LIB}/include
+        -I${IMX8_EXT_BSP_DIR}/driver/crypto
+        {strprefix(__BSP_CFG_NAME,"dbg")} -DDEBUG
+	-c99
+she_lib.c
+seco_utils.c
+seco_sab_messaging.c
+seco_os_abs_ghs.c

@@ -31,8 +31,8 @@ struct hsm_service_hdl_s {
 #define HSM_MAX_SESSIONS	(8u)
 #define HSM_MAX_SERVICES	(32u)
 
-static struct hsm_session_hdl_s hsm_sessions[HSM_MAX_SESSIONS] = {};
-static struct hsm_service_hdl_s hsm_services[HSM_MAX_SERVICES] = {};
+static struct hsm_session_hdl_s hsm_sessions[HSM_MAX_SESSIONS] = {0};
+static struct hsm_service_hdl_s hsm_services[HSM_MAX_SERVICES] = {0};
 
 static struct hsm_session_hdl_s *session_hdl_to_ptr(uint32_t hdl)
 {

@@ -343,7 +343,7 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t aut
         hdl = NULL;
     }
     return hdl;
-};
+}
 
 /* MAC generation command processing. */
 she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint16_t message_length, uint8_t *message, uint8_t *mac)
