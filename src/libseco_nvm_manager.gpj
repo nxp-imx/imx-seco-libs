@@ -2,6 +2,6 @@
 [Library]
 	-I${IMX8_EXT_SECO_LIB}/include
         -I${IMX8_EXT_BSP_DIR}/driver/crypto
-        {strprefix(__BSP_CFG_NAME,"dbg")} -DDEBUG
+        {strprefix(__BSP_CFG_NAME,"chk")} -DDEBUG
 	-c99
 seco_nvm_manager.c
