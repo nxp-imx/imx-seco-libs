@@ -47,10 +47,13 @@ static char SECO_NVM_HSM_STORAGE_CHUNK_PATH[] = "/crypto/seco_hsm/";
 /* SECO MU Resource names used for HSM */
 #define SECO_HSM_RES     "seco_mu_2_ch0"
 #define SECO_HSM_NVM_RES "seco_mu_2_ch1"
+#define SECO_OS_CRYPTO_DIR "/crypto"
+#define SECO_OS_HSM_DIR  "/crypto/seco_hsm"
 
 int prepare_fs(void)
 {
     int err = 0;
+    DIR *dir = NULL;
     static volatile Address api_init = 0U;
     static Boolean fs_initialisated = false;
 
@@ -59,7 +62,13 @@ int prepare_fs(void)
     }
     if (! fs_initialisated) {
         WaitForFileSystemInitialization();
-        err = mkdir("/crypto",0600);
+        dir = opendir(SECO_OS_CRYPTO_DIR);
+        if (dir == NULL) {
+            err = mkdir(SECO_OS_CRYPTO_DIR, 0600);
+        }
+        else {
+            closedir(dir);
+        }
 #ifdef DEBUG
         if ((err != 0) && (errno != EEXIST)) {
             printf("Cannot create the /crypto folder! [%s]\n", strerror(errno));
@@ -71,7 +80,13 @@ int prepare_fs(void)
         }
 #endif
         if (err == 0) {
-            err = mkdir("/crypto/seco_hsm",0600);
+            dir = opendir(SECO_OS_HSM_DIR);
+            if (dir == NULL) {
+                err = mkdir(SECO_OS_HSM_DIR, 0600);
+            }
+            else {
+                closedir(dir);
+            }
 #ifdef DEBUG
             if ((err != 0) && (errno != EEXIST)) {
                 printf("Cannot create the /crypto/seco_hsm folder! [%s]\n", strerror(errno));
