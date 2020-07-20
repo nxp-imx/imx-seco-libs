@@ -115,17 +115,12 @@ uint32_t seco_os_abs_has_v2x_hw(void)
 
 struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_mu_params *mu_params)
 {
-    struct seco_os_abs_hdl *phdl = malloc(sizeof(struct seco_os_abs_hdl));
+    struct seco_os_abs_hdl *phdl = NULL;
     char *resname = NULL;
     Value is_listener = 0;
+    int status = (mu_params == NULL) ? 1 : 0;
 
-    if (prepare_fs()) {
-        return NULL;
-    }
-
-    if ((phdl != NULL) && (mu_params != NULL)) {
-        phdl->type = type;
-
+    if (status == 0) {
         switch (type) {
             case MU_CHANNEL_SECO_SHE:
                 resname = SECO_SHE_RES;
@@ -142,20 +137,39 @@ struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_m
                 is_listener = 1u;
                 break;
             default:
+                status = 1;
+#ifdef DEBUG
                 printf("Unsupported channel number!\n");
+#endif
                 break;
         }
-
-        if ((resname != NULL) && (seco_mu_open(&phdl->seco_mu, type, resname, is_listener) == Success)) {
-            mu_params->interrupt_idx = SHE_DEFAULT_INTERRUPT_IDX;
-            mu_params->mu_id = phdl->seco_mu.mu_id;
-            mu_params->tz = phdl->seco_mu.tz;
-            mu_params->did = phdl->seco_mu.did;
+    }
+    if (status == 0) {
+        status = prepare_fs();
+    }
+    if (status == 0) {
+        phdl = (struct seco_os_abs_hdl *)malloc(sizeof(struct seco_os_abs_hdl));
+        if (phdl == NULL) {
+            status = 1;
         }
-        else {
+    }
+    if (status == 0) {
+        phdl->type = type;
+        if (seco_mu_open(&phdl->seco_mu, type, resname, is_listener) != Success) {
+            status = 1;
+        }
+    }
+    if (status == 0) {
+        mu_params->interrupt_idx = SHE_DEFAULT_INTERRUPT_IDX;
+        mu_params->mu_id = phdl->seco_mu.mu_id;
+        mu_params->tz = phdl->seco_mu.tz;
+        mu_params->did = phdl->seco_mu.did;
+    }
+    else {
+        if (phdl != NULL) {
             free(phdl);
-            phdl = NULL;
         }
+        phdl = NULL;
     }
 
     return phdl;
