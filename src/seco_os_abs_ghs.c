@@ -46,6 +46,7 @@ static char SECO_NVM_HSM_STORAGE_CHUNK_PATH[] = "/crypto/seco_hsm/";
 #define SECO_SHE_NVM_RES "seco_mu_1_ch1"
 /* SECO MU Resource names used for HSM */
 #define SECO_HSM_RES     "seco_mu_2_ch0"
+#define SECO_HSM_SECONDARY_RES "seco_mu_2_ch2"
 #define SECO_HSM_NVM_RES "seco_mu_2_ch1"
 #define SECO_OS_CRYPTO_DIR "/crypto"
 #define SECO_OS_HSM_DIR  "/crypto/seco_hsm"
@@ -73,11 +74,6 @@ int prepare_fs(void)
         if ((err != 0) && (errno != EEXIST)) {
             printf("Cannot create the /crypto folder! [%s]\n", strerror(errno));
         }
-        else {
-            if (err == 0) {
-                printf("/crypto created \n");
-            }
-        }
 #endif
         if (err == 0) {
             dir = opendir(SECO_OS_HSM_DIR);
@@ -90,11 +86,6 @@ int prepare_fs(void)
 #ifdef DEBUG
             if ((err != 0) && (errno != EEXIST)) {
                 printf("Cannot create the /crypto/seco_hsm folder! [%s]\n", strerror(errno));
-            }
-            else {
-                if (err == 0){
-                    printf("/crypto/seco_hsm created\n");
-                }
             }
 #endif
         }
@@ -119,6 +110,7 @@ struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_m
     char *resname = NULL;
     Value is_listener = 0;
     int status = (mu_params == NULL) ? 1 : 0;
+    Error E;
 
     if (status == 0) {
         switch (type) {
@@ -131,6 +123,9 @@ struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_m
                 break;
             case MU_CHANNEL_SECO_HSM:
                 resname = SECO_HSM_RES;
+                break;
+            case MU_CHANNEL_SECO_HSM_2ND:
+                resname = SECO_HSM_SECONDARY_RES;
                 break;
             case MU_CHANNEL_SECO_HSM_NVM:
                 resname = SECO_HSM_NVM_RES;
@@ -154,16 +149,21 @@ struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_m
         }
     }
     if (status == 0) {
-        phdl->type = type;
-        if (seco_mu_open(&phdl->seco_mu, type, resname, is_listener) != Success) {
+        E = seco_mu_open(&phdl->seco_mu, type, resname, is_listener);
+        if ((E == AlreadyRegistered) && (type == MU_CHANNEL_SECO_HSM)) {
+            type = MU_CHANNEL_SECO_HSM_2ND;
+            E = seco_mu_open(&phdl->seco_mu, type, SECO_HSM_SECONDARY_RES, is_listener);
+        }
+        if (E != Success) {
             status = 1;
         }
     }
     if (status == 0) {
-        mu_params->interrupt_idx = SHE_DEFAULT_INTERRUPT_IDX;
-        mu_params->mu_id = phdl->seco_mu.mu_id;
-        mu_params->tz = phdl->seco_mu.tz;
-        mu_params->did = phdl->seco_mu.did;
+        phdl->type = type;
+        mu_params->interrupt_idx = phdl->seco_mu.info.interrupt_idx;
+        mu_params->mu_id = phdl->seco_mu.info.idx;
+        mu_params->tz = phdl->seco_mu.info.tz;
+        mu_params->did = phdl->seco_mu.info.did;
     }
     else {
         if (phdl != NULL) {
@@ -178,36 +178,42 @@ struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_m
 /* Close a previously opened session (SHE or storage). */
 void seco_os_abs_close_session(struct seco_os_abs_hdl *phdl)
 {
-    seco_mu_close(&phdl->seco_mu);
-    free(phdl);
+    if (phdl != NULL) {
+        seco_mu_close(&phdl->seco_mu);
+        free(phdl);
+    }
 }
 
 /* Send a message to Seco on the MU. Return the size of the data written. */
 int32_t seco_os_abs_send_mu_message(struct seco_os_abs_hdl *phdl, uint32_t *message, uint32_t size)
 {
-    int32_t retval;
-
-    retval = seco_mu_write(&phdl->seco_mu, message, size);
-
+    int32_t retval = 0;
+    if ((phdl != NULL) && (message != NULL) && (size != 0U)) {
+        retval = seco_mu_write(&phdl->seco_mu, message, size);
+    }
     return retval;
 }
 
 /* Read a message from Seco on the MU. Return the size of the data that were read. */
 int32_t seco_os_abs_read_mu_message(struct seco_os_abs_hdl *phdl, uint32_t *message, uint32_t size)
 {
-    int32_t retval;
+    int32_t retval = 0;
 
-    retval = seco_mu_read(&phdl->seco_mu, message, size);
+    if ((phdl != NULL) && (message != NULL) && (size != 0U)) {
+        retval = seco_mu_read(&phdl->seco_mu, message, size);
+    }
     return retval;
 }
 
 /* Map the shared buffer allocated by Seco. */
 int32_t seco_os_abs_configure_shared_buf(struct seco_os_abs_hdl *phdl, uint32_t shared_buf_off, uint32_t size)
 {
-    int32_t error = 0;
-
-    if (seco_mu_config_shared_buff(&phdl->seco_mu, shared_buf_off, size) != Success) {
-        error = 1;
+    int32_t error = (phdl == NULL) ? 1 : 0;
+    
+    if (error == 0) {
+        if (seco_mu_config_shared_buff(&phdl->seco_mu, shared_buf_off, size) != Success) {
+            error = 1;
+        }
     }
 
     return error;
@@ -217,7 +223,7 @@ uint64_t seco_os_abs_data_buf(struct seco_os_abs_hdl *phdl, uint8_t *src, uint32
 {
     uint64_t seco_addr = 0UL;
 
-    if ((src != (uint8_t*)NULL) && (size != 0U)) {
+    if ((phdl != NULL) && (src != NULL) && (size != 0U)) {
         if (flags & FLAG_WRITE) {
             seco_addr = seco_shared_buff_write(&phdl->seco_mu, src, size, flags);
         } else {
@@ -230,12 +236,11 @@ uint64_t seco_os_abs_data_buf(struct seco_os_abs_hdl *phdl, uint8_t *src, uint32
 
 uint32_t seco_os_abs_crc(uint8_t *data, uint32_t size)
 {
-    uint32_t crc;
+    uint32_t crc = 0U;
     uint32_t i;
     uint32_t nb_words = size / (uint32_t)sizeof(uint32_t);
 
-    crc = 0u;
-    for (i = 0u; i < nb_words; i++) {
+    for (i = (data == NULL) ? nb_words : 0U; i < nb_words; i++) {
         crc ^= *(data + i);
     }
     return crc;
@@ -246,19 +251,17 @@ int32_t seco_os_abs_storage_write(struct seco_os_abs_hdl *phdl, uint8_t *src, ui
 {
     int32_t fd = -1;
     int32_t l = 0;
+    char *path = NULL;
 
-    char *path;
-
-    switch(phdl->type) {
-    case MU_CHANNEL_SECO_SHE_NVM:
-        path = SECO_NVM_SHE_STORAGE_FILE;
-        break;
-    case MU_CHANNEL_SECO_HSM_NVM:
-        path = SECO_NVM_HSM_STORAGE_FILE;
-        break;
-    default:
-        path = NULL;
-        break;
+    if ((phdl != NULL) && (src != NULL) && (size != 0U)) {
+        switch(phdl->type) {
+        case MU_CHANNEL_SECO_SHE_NVM:
+            path = SECO_NVM_SHE_STORAGE_FILE;
+            break;
+        case MU_CHANNEL_SECO_HSM_NVM:
+            path = SECO_NVM_HSM_STORAGE_FILE;
+            break;
+        }
     }
     if (path != NULL) {
         /* Open or create the file with access reserved to the current user. */
@@ -278,19 +281,17 @@ int32_t seco_os_abs_storage_read(struct seco_os_abs_hdl *phdl, uint8_t *dst, uin
 {
     int32_t fd = -1;
     int32_t l = 0;
+    char *path = NULL;
 
-    char *path;
-
-    switch(phdl->type) {
-    case MU_CHANNEL_SECO_SHE_NVM:
-        path = SECO_NVM_SHE_STORAGE_FILE;
-        break;
-    case MU_CHANNEL_SECO_HSM_NVM:
-        path = SECO_NVM_HSM_STORAGE_FILE;
-        break;
-    default:
-        path = NULL;
-        break;
+    if ((phdl != NULL) && (dst != NULL) && (size != 0U)) {
+        switch(phdl->type) {
+        case MU_CHANNEL_SECO_SHE_NVM:
+            path = SECO_NVM_SHE_STORAGE_FILE;
+            break;
+        case MU_CHANNEL_SECO_HSM_NVM:
+            path = SECO_NVM_HSM_STORAGE_FILE;
+            break;
+        }
     }
 
     if (path != NULL) {
@@ -312,27 +313,31 @@ int32_t seco_os_abs_storage_write_chunk(struct seco_os_abs_hdl *phdl, uint8_t *s
 {
     int32_t fd = -1;
     int32_t l = 0;
-
     int n = -1;
-    char *path = malloc(sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u);
+    char *path = NULL;
 
-    if ((path != NULL) && (phdl->type == MU_CHANNEL_SECO_HSM_NVM)) {
-        (void)mkdir(SECO_NVM_HSM_STORAGE_CHUNK_PATH, S_IRUSR|S_IWUSR);
-        n = snprintf(path, sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u,
-                        "%s%016lx", SECO_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
-    }
-    if (n > 0) {
-        /* Open or create the file with access reserved to the current user. */
-        fd = open(path, O_CREAT|O_WRONLY|O_SYNC, S_IRUSR|S_IWUSR);
-        if (fd >= 0) {
-            /* Write the data. */
-            l = (int32_t)write(fd, src, size);
+    if ((phdl != NULL) && (src != NULL) && (size != 0U)) {
+        path = malloc(sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u);
+        if ((path != NULL) && (phdl->type == MU_CHANNEL_SECO_HSM_NVM)) {
+            (void)mkdir(SECO_NVM_HSM_STORAGE_CHUNK_PATH, S_IRUSR|S_IWUSR);
+            n = snprintf(path, sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u,
+                            "%s%016lx", SECO_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
+        }
+        if (n > 0) {
+            /* Open or create the file with access reserved to the current user. */
+            fd = open(path, O_CREAT|O_WRONLY|O_SYNC, S_IRUSR|S_IWUSR);
+            if (fd >= 0) {
+                /* Write the data. */
+                l = (int32_t)write(fd, src, size);
 
-            (void)close(fd);
+                (void)close(fd);
+            }
+        }
+
+        if(path != NULL) {
+            free(path);
         }
     }
-
-    free(path);
 
     return l;
 }
@@ -341,27 +346,31 @@ int32_t seco_os_abs_storage_read_chunk(struct seco_os_abs_hdl *phdl, uint8_t *ds
 {
     int32_t fd = -1;
     int32_t l = 0;
-
     int n = -1;
-    char *path = malloc(sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u);
+    char *path = NULL;
 
-    if ((path != NULL) && (phdl->type == MU_CHANNEL_SECO_HSM_NVM)) {
-        n = snprintf(path, sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u,
-                        "%s%016lx",SECO_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
-    }
+    if ((phdl != NULL) && (dst != NULL) && (size != 0U)) {
+        path = malloc(sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u);
+        if ((path != NULL) && (phdl->type == MU_CHANNEL_SECO_HSM_NVM)) {
+            n = snprintf(path, sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u,
+                            "%s%016lx",SECO_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
+        }
 
 
-    if (n > 0) {
-        /* Open the file as read only. */
-        fd = open(path, O_RDONLY);
-        if (fd >= 0) {
-            /* Read the data. */
-            l = (int32_t)read(fd, dst, size);
+        if (n > 0) {
+            /* Open the file as read only. */
+            fd = open(path, O_RDONLY);
+            if (fd >= 0) {
+                /* Read the data. */
+                l = (int32_t)read(fd, dst, size);
 
-            (void)close(fd);
+                (void)close(fd);
+            }
+        }
+        if(path != NULL) {
+            free(path);
         }
     }
-    free(path);
 
     return l;
 }
@@ -393,10 +402,10 @@ void seco_os_abs_start_system_rng(struct seco_os_abs_hdl *phdl)
 int32_t seco_os_abs_send_signed_message(struct seco_os_abs_hdl *phdl, uint8_t *signed_message, uint32_t msg_len)
 {
     /* Send the message to the kernel that will forward to SCU.*/
-    uint32_t seco_err = 0;
+    int32_t seco_err = ((phdl == NULL) || (signed_message == NULL) || (msg_len == 0U))? 1 : 0;
 
-    if (seco_send_signed_msg(&phdl->seco_mu, signed_message, msg_len, &seco_err) != Success) {
-        seco_err = 1;
+    if (seco_err == 0) {
+        seco_err = seco_send_signed_msg(&phdl->seco_mu, signed_message, msg_len);
     }
 
     return seco_err;
