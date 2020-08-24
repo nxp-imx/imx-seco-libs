@@ -2218,7 +2218,9 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl, op_mac_one_go_args_t* args, hsm_mac_
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 
-		*status = rsp.verification_status;
+		if (status != NULL) {
+			*status = rsp.verification_status;
+		}
 
 	} while (false);
 
