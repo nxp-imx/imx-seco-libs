@@ -1,0 +1,10 @@
+#!gbuild
+#component integrity_monolith
+[INTEGRITY Application]
+    :sourceDir=${IMX8_EXT_BSP}/examples/hsm_test
+    -non_shared
+hsm_test.int
+hsm_vfs_module.gpj	[Program]
+hsm_seco_mgr.gpj	[Program]
+hsm_test_as.gpj	        [Program]
+hsm_test_kernel.gpj	[Program]
