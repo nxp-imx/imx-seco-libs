@@ -3,7 +3,6 @@
 /*-
 * Copyright (c) 2011 The NetBSD Foundation, Inc.
 * Copyright 2020 NXP
-* All rights reserved.
 *
 * This code is derived from software contributed to The NetBSD Foundation
 * by Christos Zoulas.
