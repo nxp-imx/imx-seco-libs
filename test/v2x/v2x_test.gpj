@@ -1,0 +1,10 @@
+#!gbuild
+#component integrity_monolith
+[INTEGRITY Application]
+    :sourceDir=${IMX8_EXT_BSP}/examples/v2x_test
+    -non_shared
+v2x_test.int
+v2x_vfs_module.gpj	[Program]
+v2x_seco_mgr.gpj	[Program]
+v2x_test_as.gpj	        [Program]
+v2x_test_kernel.gpj	[Program]

@@ -1,0 +1,10 @@
+#!gbuild
+#component integrity_monolith
+[INTEGRITY Application]
+    :sourceDir=${IMX8_EXT_BSP}/examples/she_test
+    -non_shared
+she_test.int
+she_test_kernel.gpj	[Program]
+she_test_as.gpj		[Program]
+she_seco_mgr.gpj	[Program]
+she_vfs_module.gpj	[Program]
