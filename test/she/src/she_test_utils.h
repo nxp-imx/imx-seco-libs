@@ -33,7 +33,7 @@
 #ifndef __she_test_utils_h__
 #define __she_test_utils_h__
 
-#if defined(__QNXNTO__)
+#if defined(__QNXNTO__) || defined(__ghs__)
 ssize_t getline(char **buf, size_t *bufsiz, FILE *fp);
 #endif
 

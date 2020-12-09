@@ -129,6 +129,7 @@ static uint32_t nvm_status;
 static void *v2x_hsm_storage_thread(void *arg)
 {
     seco_nvm_manager(NVM_FLAGS_V2X | NVM_FLAGS_HSM, &nvm_status);
+    return NULL;
 }
 
 

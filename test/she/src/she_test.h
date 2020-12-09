@@ -19,6 +19,9 @@
 #if defined(__QNXNTO__)
     #include <unistd.h>
     #define CLOCK_MONOTONIC_RAW CLOCK_MONOTONIC
+#elif defined(__ghs__)
+    #include "ghsposix/pthread_create.h"
+    #define CLOCK_MONOTONIC_RAW CLOCK_REALTIME
 #endif
 
 typedef struct
