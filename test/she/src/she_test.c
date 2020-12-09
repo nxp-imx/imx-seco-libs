@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NXP
+ * Copyright 2019-2020 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -27,6 +27,7 @@
 #include "she_test_sessions.h"
 #include "she_test_storage_create.h"
 #include "she_test_storage_manager.h"
+#include "she_test_utils.h"
 
 uint32_t read_single_data(FILE *fp)
 {

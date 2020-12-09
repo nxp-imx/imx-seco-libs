@@ -1,1 +1,19 @@
-source code for iMX8 SHE driver
+source code for iMX8 SHE/HSM drivers
+
+
+How to build SHE/HSM libraries:
+For linux OS:
+
+	$ make
+
+For QNX RTOS:
+	$ export PATH=$PATH:<compiler path>
+	$ export QNX_TARGET=<path to QNX SDP>/target/qnx7
+	$ export QNX_HOST=<path to QNX SDP>/host/linux/x86_64
+	$ export AR=ntoaarch64-ar
+	$ export CC=ntoaarch64-gcc
+	$ export TARGET_FLAVOR=qnx
+
+	$ make
+
+Note: /tmp folder is used for NVM storage by default, for using NVM storage please change path in "seco_os_abs_qnx.c" file.
