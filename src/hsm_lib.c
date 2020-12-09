@@ -31,8 +31,8 @@ struct hsm_service_hdl_s {
 #define HSM_MAX_SESSIONS	(8u)
 #define HSM_MAX_SERVICES	(32u)
 
-static struct hsm_session_hdl_s hsm_sessions[HSM_MAX_SESSIONS] = {};
-static struct hsm_service_hdl_s hsm_services[HSM_MAX_SERVICES] = {};
+static struct hsm_session_hdl_s hsm_sessions[HSM_MAX_SESSIONS] = {0};
+static struct hsm_service_hdl_s hsm_services[HSM_MAX_SERVICES] = {0};
 
 static struct hsm_session_hdl_s *session_hdl_to_ptr(uint32_t hdl)
 {
@@ -2232,7 +2232,9 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl, op_mac_one_go_args_t* args, hsm_mac_
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 
-		*status = rsp.verification_status;
+		if (status != NULL) {
+			*status = rsp.verification_status;
+		}
 
 	} while (false);
 

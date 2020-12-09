@@ -28,6 +28,7 @@ static uint32_t nvm_status;
 static void *she_storage_thread(void *arg)
 {
     seco_nvm_manager(NVM_FLAGS_SHE, &nvm_status);
+    return NULL;
 }
 
 
