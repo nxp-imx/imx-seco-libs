@@ -150,10 +150,10 @@ typedef struct {
  * \return error_code error code.
  */
 hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl, open_svc_key_store_args_t *args, hsm_hdl_t *key_store_hdl);
-#define HSM_SVC_KEY_STORE_FLAGS_CREATE              ((hsm_svc_key_store_flags_t)(1u << 0)) //!< It must be specified to create a new key store. The key store will be stored in the NVM only if the STRICT OPERATION flag is set.
-#define HSM_SVC_KEY_STORE_FLAGS_SET_MAC_LEN         ((hsm_svc_key_store_flags_t)(1u << 3)) //!< If set, minimum mac length specified in min_mac_length field will be stored in the key store when creating the key store.  Must only be set at key store creation.
-#define HSM_SVC_KEY_STORE_FLAGS_FAST_CMAC           ((hsm_svc_key_store_flags_t)(1u << 4)) //!< If set, the mmcau crytpo accelerator can be used for cmac with this key store (only on SECO). If a hsm key store with this flag is open a she key store can't be open. If a she key store is open a hsm key store with this flag can't be open
-#define HSM_SVC_KEY_STORE_FLAGS_STRICT_OPERATION    ((hsm_svc_key_store_flags_t)(1u << 7)) //!< The request is completed only when the new key store has been written in the NVM. This applicable for CREATE operations only.
+#define HSM_SVC_KEY_STORE_FLAGS_CREATE                        ((hsm_svc_key_store_flags_t)(1u << 0)) //!< It must be specified to create a new key store. The key store will be stored in the NVM only if the STRICT OPERATION flag is set.
+#define HSM_SVC_KEY_STORE_FLAGS_SET_MAC_LEN                   ((hsm_svc_key_store_flags_t)(1u << 3)) //!< If set, minimum mac length specified in min_mac_length field will be stored in the key store when creating the key store.  Must only be set at key store creation.
+#define HSM_SVC_KEY_STORE_FLAGS_EXCLUSIVE_CMAC_CRYPTO_ENGINE  ((hsm_svc_key_store_flags_t)(1u << 4)) //!< If set, cmac on this hsm keystore will be perfomed by an exclusive crypto engine.
+#define HSM_SVC_KEY_STORE_FLAGS_STRICT_OPERATION              ((hsm_svc_key_store_flags_t)(1u << 7)) //!< The request is completed only when the new key store has been written in the NVM. This applicable for CREATE operations only.
 
 /**
  * Close a previously opened key store service flow. The key store is deleted from the HSM local memory, any update not written in the NVM is lost \n
@@ -1306,16 +1306,16 @@ typedef uint32_t hsm_mac_verification_status_t;
  */
 hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl, op_mac_one_go_args_t* args, hsm_mac_verification_status_t *status);
 
-#define HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION       ((hsm_op_mac_one_go_flags_t)(0u << 0))
-#define HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION         ((hsm_op_mac_one_go_flags_t)(1u << 0))
-#define HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS     ((hsm_op_mac_one_go_flags_t)(1u << 1))
-#define HSM_OP_MAC_ONE_GO_FLAGS_FAST_CMAC              ((hsm_op_mac_one_go_flags_t)(1u << 2))
-#define HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC                ((hsm_op_mac_one_go_algo_t)(0x01u))
-#define HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_224            ((hsm_op_mac_one_go_algo_t)(0x05u))
-#define HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_256            ((hsm_op_mac_one_go_algo_t)(0x06u))
-#define HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_384            ((hsm_op_mac_one_go_algo_t)(0x07u))
-#define HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_512            ((hsm_op_mac_one_go_algo_t)(0x08u))
-#define HSM_MAC_VERIFICATION_STATUS_SUCCESS            ((hsm_mac_verification_status_t)(0x6C1AA1C6u))
+#define HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION             ((hsm_op_mac_one_go_flags_t)(0u << 0))
+#define HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION               ((hsm_op_mac_one_go_flags_t)(1u << 0))
+#define HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS           ((hsm_op_mac_one_go_flags_t)(1u << 1))
+#define HSM_OP_MAC_ONE_GO_FLAGS_EXCLUSIVE_CMAC_CRYPTO_ENGINE ((hsm_op_mac_one_go_flags_t)(1u << 2))
+#define HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC                      ((hsm_op_mac_one_go_algo_t)(0x01u))
+#define HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_224                  ((hsm_op_mac_one_go_algo_t)(0x05u))
+#define HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_256                  ((hsm_op_mac_one_go_algo_t)(0x06u))
+#define HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_384                  ((hsm_op_mac_one_go_algo_t)(0x07u))
+#define HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_512                  ((hsm_op_mac_one_go_algo_t)(0x08u))
+#define HSM_MAC_VERIFICATION_STATUS_SUCCESS                  ((hsm_mac_verification_status_t)(0x6C1AA1C6u))
 
 /**
  * Terminate a previously opened mac service flow
