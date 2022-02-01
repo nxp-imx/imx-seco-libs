@@ -16,6 +16,7 @@
 #include "seco_sab_msg_def.h"
 #include "seco_sab_messaging.h"
 #include "seco_utils.h"
+#include <unistd.h>
 
 struct hsm_session_hdl_s {
 	struct seco_os_abs_hdl *phdl;
@@ -286,6 +287,10 @@ hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl,
 		/* Send the signed message to SECO if provided here. */
 		if (args->signed_message != NULL) {
 			(void)seco_os_abs_send_signed_message(sess_ptr->phdl, args->signed_message, args->signed_msg_size);
+			// In case of v2x signed message, seco need a delay to forward the msg to v2x
+			if (seco_os_abs_has_v2x_hw() != 0U) {
+				usleep(5000);
+			}
 		}
 
 		sab_err = sab_open_key_store_command(sess_ptr->phdl,
