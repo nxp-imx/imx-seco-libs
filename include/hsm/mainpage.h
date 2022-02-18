@@ -38,7 +38,7 @@
  * 3.9 | May 12 2021  | - Butterfly key expansion: add the support of SM2 on DXL \n - Public key reconstruction: add the support of SM2 on DXL \n - Introduce standalone Butterfly key expansion API on DXL. \n - Butterfly key expansion, Public key reconstruction, ECIES enc/dec: remove the support of BR256T1 on DXL. \n- hsm_prepare_signature: specify max number of stored pre-calculated values. \n key exchange: add the support of BR256T1 on DXL.
  * 4.0 | Aug 05 2021  | - Authenticated encryption: add the support of SM4 CCM on DXL. \n - Add key generic cryptographic service API on DXL.
  * 4.1 | Dec 03 2021  | - Add exclusive crypto engine flag for hsm cmac one go
- * 4.2 | Dec 31 2021  | - AES CCM IV handling updated to match AES GCM, to guarantee unique IV's for FIPS certification
+ * 4.2 | Dec 31 2021  | - AES CCM IV handling updated to match AES GCM, to guarantee unique IV's (not backward compatible)
  * */
 
 /*! \page page1 General concepts related to the API
