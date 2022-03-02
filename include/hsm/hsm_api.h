@@ -854,6 +854,14 @@ hsm_err_t hsm_close_signature_verification_service(hsm_hdl_t signature_ver_hdl);
  *\addtogroup qxp_specific
  * \ref group6
  *
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_NIST_P521_SHA_512 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_320_SHA_384 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_512_SHA_512 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_256_SHA_256 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_320_SHA_384 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_384_SHA_384 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_512_SHA_512 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_DSA_SM2_FP_256_SM3 is not supported.
  * - \ref HSM_OP_VERIFY_SIGN_FLAGS_KEY_INTERNAL is not supported
  * - \ref hsm_import_public_key: This API is not supported
  *
@@ -983,7 +991,7 @@ hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl, op_hash_one_go_args_t *args);
 
 /**
  *\addtogroup qxp_specific
- * \ref group5
+ * \ref group8
  *
  * - \ref HSM_HASH_ALGO_SM3_256 is not supported.
  *
