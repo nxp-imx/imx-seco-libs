@@ -289,7 +289,7 @@ hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl,
 			(void)seco_os_abs_send_signed_message(sess_ptr->phdl, args->signed_message, args->signed_msg_size);
 			// In case of v2x signed message, seco need a delay to forward the msg to v2x
 			if (seco_os_abs_has_v2x_hw() != 0U) {
-				usleep(5000);
+				(void)usleep(5000);
 			}
 		}
 
@@ -2112,7 +2112,7 @@ hsm_err_t hsm_auth_enc(hsm_hdl_t cipher_hdl, op_auth_enc_args_t* args)
 
 		cmd.cipher_handle = cipher_hdl;
 		cmd.key_id = args->key_identifier;
-		if (args->iv_size != 0) {
+		if (args->iv_size != 0U) {
 			cmd.iv_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
 									args->iv, args->iv_size, DATA_BUF_IS_INPUT);
 		}
@@ -2313,7 +2313,7 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl, op_mac_one_go_args_t* args, hsm_mac_
 	struct sab_cmd_mac_one_go_msg cmd;
 	struct sab_cmd_mac_one_go_rsp rsp;
 	struct hsm_service_hdl_s *serv_ptr;
-	uint32_t mac_size_bytes;
+	uint16_t mac_size_bytes;
 
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	int32_t error = 1;
@@ -2335,9 +2335,9 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl, op_mac_one_go_args_t* args, hsm_mac_
 		cmd.key_id = args->key_identifier;
 		cmd.algorithm = args->algorithm;
 		cmd.flags = args->flags;
-		if (args->flags & HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS) {
-			mac_size_bytes = args->mac_size / 8;
-			if (args->mac_size % 8) {
+		if ((args->flags & HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS) != 0u) {
+			mac_size_bytes = args->mac_size >> 3; /* divide by 8 */
+			if ((args->mac_size % 8u) != 0u) {
 				mac_size_bytes++;
 			}
 		}
@@ -2978,7 +2978,7 @@ hsm_err_t hsm_key_generic_crypto(hsm_hdl_t key_generic_crypto_hdl, op_key_generi
 		cmd.key_size = args->key_size;
 		cmd.key_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
 									args->key, args->key_size, DATA_BUF_IS_INPUT);
-		if (args->iv_size != 0) {
+		if (args->iv_size != 0U) {
 			cmd.iv_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
 									args->iv, args->iv_size, DATA_BUF_IS_INPUT);
 		}

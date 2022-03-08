@@ -417,7 +417,7 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
 }
 
 #define MAC_BYTES_LENGTH    (0)
-#define MAC_BITS_LENGTH     (1)
+#define MAC_BITS_LENGTH     (1u)
 /* MAC verify command processing. */
 static she_err_t she_cmd_verify_mac_generic(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint16_t message_length, uint8_t *message, uint8_t *mac, uint8_t mac_length, uint8_t mac_length_encoding, uint8_t *verification_status)
 {
