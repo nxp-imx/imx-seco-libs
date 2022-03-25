@@ -1,0 +1,15 @@
+
+Test procedure (with storage):
+
+root@imx8dxlevk:~# rm -rf /etc/seco_she_nvm
+root@imx8dxlevk:~# sync
+<reboot device>
+root@imx8dxlevk:~# she_test she_populate_storage.shx
+root@imx8dxlevk:~# she_test she_sanity_algos.shx
+
+Test procedure (no storage):
+
+root@imx8dxlevk:~# rm -rf /etc/seco_she_nvm                                         
+root@imx8dxlevk:~# sync
+<reboot device>
+root@imx8dxlevk:~# she_test she_sanity_no_storage.shx
