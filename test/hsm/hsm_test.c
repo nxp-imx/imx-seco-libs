@@ -436,8 +436,8 @@ int main(int argc, char *argv[])
     hsm_hdl_t hsm_session_hdl;
     hsm_hdl_t key_store_hdl;
 
-    open_session_args_t open_session_args;
-    open_svc_key_store_args_t open_svc_key_store_args;
+    open_session_args_t open_session_args = {'\0'};
+    open_svc_key_store_args_t open_svc_key_store_args = {'\0'};
 
     pthread_t tid;
 
