@@ -468,10 +468,15 @@ hsm_err_t hsm_close_key_management_service(hsm_hdl_t key_management_hdl);
  *
  * - \ref HSM_OP_MANAGE_KEY_GROUP_FLAGS_DELETE is not supported.
  *
- * - \ref HSM_KEY_TYPE_HMAC_224 is not supported.
- * - \ref HSM_KEY_TYPE_HMAC_256 is not supported.
- * - \ref HSM_KEY_TYPE_HMAC_384 is not supported.
- * - \ref HSM_KEY_TYPE_HMAC_512 is not supported.
+ * - \ref HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_320 is not supported.
+ * - \ref HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_512 is not supported.
+ * - \ref HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_320 is not supported.
+ * - \ref HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_512 is not supported.
+ *
+ * - \ref HSM_KEY_TYPE_HMAC_224 is only supported on the B0 revision of DXL.
+ * - \ref HSM_KEY_TYPE_HMAC_256 is only supported on the B0 revision of DXL.
+ * - \ref HSM_KEY_TYPE_HMAC_384 is only supported on the B0 revision of DXL.
+ * - \ref HSM_KEY_TYPE_HMAC_512 is only supported on the B0 revision of DXL.
  *
  * - \ref hsm_key_type_t of op_butt_key_exp_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256, HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 and HSM_KEY_TYPE_DSA_SM2_FP_256 are supported.
  *
@@ -764,6 +769,10 @@ hsm_err_t hsm_prepare_signature(hsm_hdl_t signature_gen_hdl, op_prepare_sign_arg
  *\addtogroup dxl_specific
  * \ref group5
  *
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_320_SHA_384 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_512_SHA_512 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_320_SHA_384 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_512_SHA_512 is not supported.
  * - \ref HSM_OP_GENERATE_SIGN_FLAGS_COMPRESSED_POINT is not supported, in case of HSM_SIGNATURE_SCHEME_DSA_SM2_FP_256_SM3.
  *
  */
@@ -883,6 +892,11 @@ hsm_err_t hsm_close_signature_verification_service(hsm_hdl_t signature_ver_hdl);
 /**
  *\addtogroup dxl_specific
  * \ref group6
+ *
+ *   \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_320_SHA_384 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_512_SHA_512 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_320_SHA_384 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_512_SHA_512 is not supported.
  *
  * - \ref HSM_OP_VERIFY_SIGN_FLAGS_COMPRESSED_POINT is not supported, in case of HSM_SIGNATURE_SCHEME_DSA_SM2_FP_256_SM3.
  * - \ref HSM_OP_VERIFY_SIGN_FLAGS_KEY_INTERNAL is not supported
@@ -1368,10 +1382,10 @@ hsm_err_t hsm_close_mac_service(hsm_hdl_t mac_hdl);
  *\addtogroup dxl_specific
  * \ref group16
  *
- * - \ref HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_224 is not supported.
- * - \ref HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_256 is not supported.
- * - \ref HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_384 is not supported.
- * - \ref HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_512 is not supported.
+ * - \ref HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_224 is only supported on the B0 revision of DXL.
+ * - \ref HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_256 is only supported on the B0 revision of DXL.
+ * - \ref HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_384 is only supported on the B0 revision of DXL.
+ * - \ref HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_512 is only supported on the B0 revision of DXL.
  *
  */
 
@@ -1707,16 +1721,16 @@ hsm_err_t hsm_tls_finish(hsm_hdl_t key_management_hdl, op_tls_finish_args_t *arg
  *\addtogroup dxl_specific
  * \ref group20
  *
- * - \ref HSM_KDF_HMAC_SHA_256_TLS_0_16_4 is not supported.
- * - \ref HSM_KDF_HMAC_SHA_384_TLS_0_32_4 is not supported.
- * - \ref HSM_KDF_HMAC_SHA_256_TLS_0_32_4 is not supported.
- * - \ref HSM_KDF_HMAC_SHA_256_TLS_32_16_4 is not supported.
- * - \ref HSM_KDF_HMAC_SHA_384_TLS_48_32_4 is not supported.
- * - \ref hsm_tls_finish API is not supported.
- * - \ref HSM_OP_TLS_FINISH_HASH_ALGO_SHA256 is not supported.
- * - \ref HSM_OP_TLS_FINISH_HASH_ALGO_SHA384 is not supported.
- * - \ref HSM_OP_TLS_FINISH_FLAGS_CLIENT is not supported.
- * - \ref HSM_OP_TLS_FINISH_FLAGS_SERVER is not supported.
+ * - \ref HSM_KDF_HMAC_SHA_256_TLS_0_16_4 is only supported on the B0 revision of DXL.
+ * - \ref HSM_KDF_HMAC_SHA_384_TLS_0_32_4 is only supported on the B0 revision of DXL.
+ * - \ref HSM_KDF_HMAC_SHA_256_TLS_0_32_4 is only supported on the B0 revision of DXL.
+ * - \ref HSM_KDF_HMAC_SHA_256_TLS_32_16_4 is only supported on the B0 revision of DXL.
+ * - \ref HSM_KDF_HMAC_SHA_384_TLS_48_32_4 is only supported on the B0 revision of DXL.
+ * - \ref hsm_tls_finish API is only supported on the B0 revision of DXL.
+ * - \ref HSM_OP_TLS_FINISH_HASH_ALGO_SHA256 is only supported on the B0 revision of DXL.
+ * - \ref HSM_OP_TLS_FINISH_HASH_ALGO_SHA384 is only supported on the B0 revision of DXL.
+ * - \ref HSM_OP_TLS_FINISH_FLAGS_CLIENT is only supported on the B0 revision of DXL.
+ * - \ref HSM_OP_TLS_FINISH_FLAGS_SERVER is only supported on the B0 revision of DXL.
  */
 /** @} end of key exchange operation */
 

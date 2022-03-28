@@ -39,6 +39,7 @@
  * 4.0 | Aug 05 2021  | - Authenticated encryption: add the support of SM4 CCM on DXL. \n - Add key generic cryptographic service API on DXL.
  * 4.1 | Dec 03 2021  | - Add exclusive crypto engine flag for hsm cmac one go
  * 4.2 | Dec 31 2021  | - AES CCM IV handling updated to match AES GCM, to guarantee unique IV's (not backward compatible)
+ *     | Mar 31 2021  | - Add the OTP Root KEK flag to the manage Key on DXL B0. \n - Add the support of HMAC and TLS on DXL B0. \n - Update the list of unsupported curves on DXL.
  * */
 
 /*! \page page1 General concepts related to the API
