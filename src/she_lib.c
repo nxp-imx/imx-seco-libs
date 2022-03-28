@@ -606,8 +606,8 @@ she_err_t she_cmd_dec_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
 /* Load key command processing. */
 she_err_t she_cmd_load_key(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint8_t *m1, uint8_t *m2, uint8_t *m3, uint8_t *m4, uint8_t *m5)
 {
-    struct sab_she_key_update_msg cmd;
-    struct sab_she_key_update_rsp rsp;
+    struct sab_she_key_update_msg cmd = {0};
+    struct sab_she_key_update_rsp rsp = {0};
     int32_t error;
     she_err_t ret = ERC_GENERAL_ERROR;
 
@@ -720,8 +720,8 @@ she_err_t she_cmd_load_key_ext(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
 
 she_err_t she_cmd_load_plain_key(struct she_hdl_s *hdl, uint8_t *key)
 {
-    struct she_cmd_load_plain_key_msg cmd;
-    struct she_cmd_load_plain_key_rsp rsp;
+    struct she_cmd_load_plain_key_msg cmd = {0};
+    struct she_cmd_load_plain_key_rsp rsp = {0};
     int32_t error;
     she_err_t ret = ERC_GENERAL_ERROR;
 
@@ -841,8 +841,8 @@ she_err_t she_cmd_init_rng(struct she_hdl_s *hdl) {
 
 
 she_err_t she_cmd_extend_seed(struct she_hdl_s *hdl, uint8_t *entropy) {
-    struct sab_cmd_extend_seed_msg cmd;
-    struct sab_cmd_extend_seed_rsp rsp;
+    struct sab_cmd_extend_seed_msg cmd = {0};
+    struct sab_cmd_extend_seed_rsp rsp = {0};
     int32_t error;
     she_err_t ret = ERC_GENERAL_ERROR;
 
@@ -973,8 +973,8 @@ she_err_t she_cmd_get_status(struct she_hdl_s *hdl, uint8_t *sreg) {
 
 
 she_err_t she_cmd_get_id(struct she_hdl_s *hdl, uint8_t *challenge, uint8_t *id, uint8_t *sreg, uint8_t *mac) {
-    struct she_cmd_get_id_msg cmd;
-    struct she_cmd_get_id_rsp rsp;
+    struct she_cmd_get_id_msg cmd = {0};
+    struct she_cmd_get_id_rsp rsp = {0};
     int32_t error;
     she_err_t ret = ERC_GENERAL_ERROR;
 

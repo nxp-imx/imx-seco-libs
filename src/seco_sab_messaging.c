@@ -105,8 +105,8 @@ uint32_t sab_get_shared_buffer(struct seco_os_abs_hdl *phdl, uint32_t session_ha
 
 uint32_t sab_open_key_store_command(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uint32_t *key_store_handle, uint32_t mu_type, uint32_t key_storage_identifier, uint32_t password, uint16_t max_updates, uint8_t flags, uint8_t min_mac_length)
 {
-    struct sab_cmd_key_store_open_msg cmd;
-    struct sab_cmd_key_store_open_rsp rsp;
+    struct sab_cmd_key_store_open_msg cmd = {0};
+    struct sab_cmd_key_store_open_rsp rsp = {0};
 
     uint32_t ret = SAB_FAILURE_STATUS;
     int32_t error = 1;
@@ -162,8 +162,8 @@ uint32_t sab_close_key_store(struct seco_os_abs_hdl *phdl, uint32_t key_store_ha
 
 uint32_t sab_open_cipher(struct seco_os_abs_hdl *phdl, uint32_t key_store_handle, uint32_t *cipher_handle, uint32_t mu_type, uint8_t flags)
 {
-    struct sab_cmd_cipher_open_msg cmd;
-    struct sab_cmd_cipher_open_rsp rsp;
+    struct sab_cmd_cipher_open_msg cmd = {0};
+    struct sab_cmd_cipher_open_rsp rsp = {0};
     int32_t error = 1;
     uint32_t ret = SAB_FAILURE_STATUS;
 
@@ -215,8 +215,8 @@ uint32_t sab_close_cipher(struct seco_os_abs_hdl *phdl, uint32_t cipher_handle, 
 
 uint32_t sab_open_rng(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uint32_t *rng_handle, uint32_t mu_type, uint8_t flags)
 {
-    struct sab_cmd_rng_open_msg cmd;
-    struct sab_cmd_rng_open_rsp rsp;
+    struct sab_cmd_rng_open_msg cmd = {0};
+    struct sab_cmd_rng_open_rsp rsp = {0};
     int32_t error = 1;
     uint32_t ret = SAB_FAILURE_STATUS;
 
@@ -270,8 +270,8 @@ uint32_t sab_close_rng(struct seco_os_abs_hdl *phdl, uint32_t rng_handle, uint32
 
 uint32_t sab_open_storage_command(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uint32_t *storage_handle, uint32_t mu_type, uint8_t flags)
 {
-    struct sab_cmd_storage_open_msg cmd;
-    struct sab_cmd_storage_open_rsp rsp;
+    struct sab_cmd_storage_open_msg cmd = {0};
+    struct sab_cmd_storage_open_rsp rsp = {0};
     int32_t error = 1;
     uint32_t ret = SAB_FAILURE_STATUS;
 
