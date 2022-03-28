@@ -157,6 +157,20 @@ uint8_t sm4_ccm_key[16] = {
     0xCA, 0x44, 0xEF, 0x8D, 0xF3, 0x25, 0xAB, 0xB3, 0x8D, 0xAC, 0x37, 0x43, 0xDD, 0x32, 0x43, 0xDF
 };
 
+uint8_t encrypted_kek[12+16+16] = {
+    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x8d, 0xf7, 0x51,
+    0xe2, 0xa7, 0x85, 0x77, 0x09, 0x6c, 0x86, 0xa4, 0xcb, 0xb6, 0xdd, 0x03, 0x28, 0x97, 0x27, 0x59,
+    0xd3, 0x2e, 0x8d, 0x19, 0x48, 0x81, 0xa2, 0x65, 0xa7, 0x82, 0xc0, 0xf4
+};
+
+uint8_t injected_key_plain[16] = {
+    0x69, 0x3F, 0x25, 0xBD, 0x6A, 0x29, 0x91, 0x07, 0xCF, 0x72, 0x20, 0xB9, 0xAB, 0x50, 0x41, 0x11
+};
+
+uint8_t injected_key_cipher[16] = {
+    0xB1, 0xEE, 0xA3, 0x35, 0xE7, 0xF4, 0x13, 0xAA, 0x58, 0xB0, 0x78, 0x95, 0x0F, 0x90, 0x70, 0xE2,
+};
+
 uint8_t work_area[128] = {0};
 uint8_t work_area2[128] = {0};
 uint8_t work_area3[128] = {0};
@@ -1473,6 +1487,41 @@ int main(int argc, char *argv[])
     printf("err: 0x%x hsm_key_generic_crypto err: hdl: 0x%08x\n", err, key_generic_crypto);
 
     if (memcmp(sm4_ccm_ptx, work_area4, 23) == 0) {
+        printf(" --> SUCCESS\n");
+    } else {
+        printf(" --> FAILURE\n");
+    }
+
+    printf("\n---------------------------------------------------\n");
+    printf("Key injection with the OTP Root KEK \n");
+    printf("---------------------------------------------------\n");
+
+    mng_key_args.key_identifier = &key_id;
+    mng_key_args.kek_identifier = 0;
+    mng_key_args.input_size = 12 + 16 + 16; //IV + Encrypted key + Tag
+    mng_key_args.flags = HSM_OP_MANAGE_KEY_FLAGS_IMPORT_CREATE | HSM_OP_MANAGE_KEY_FLAGS_OTP_ROOT_KEK;
+    mng_key_args.key_type = HSM_KEY_TYPE_AES_128;
+    mng_key_args.key_group = 10;
+    mng_key_args.key_info = 0;
+    mng_key_args.input_data = encrypted_kek;
+
+    err = hsm_manage_key(sg0_key_mgmt_srv, &mng_key_args);
+    printf("err: 0x%x hsm_manage_key hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+
+    cipher_args.key_identifier = key_id;
+    cipher_args.iv = NULL;
+    cipher_args.iv_size = 0U;
+    cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_ECB;
+    cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT;
+    cipher_args.input = injected_key_plain;
+    cipher_args.output = work_area4;
+    cipher_args.input_size = 16;
+    cipher_args.output_size = 16;
+
+    err = hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args);
+    printf("err: 0x%x hsm_cipher_one_go err: hdl: 0x%08x\n", err, sg0_cipher_hdl);
+
+    if (memcmp(injected_key_cipher, work_area4, 16) == 0) {
         printf(" --> SUCCESS\n");
     } else {
         printf(" --> FAILURE\n");
