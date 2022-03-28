@@ -274,7 +274,7 @@ hsm_err_t hsm_generate_key_ext(hsm_hdl_t key_management_hdl, op_generate_key_ext
 typedef uint8_t hsm_op_manage_key_flags_t;
 typedef struct {
     uint32_t *key_identifier;           //!< pointer to the identifier of the key to be used for the operation.\n In case of create operation the new key identifier will be stored in this location.
-    uint32_t kek_identifier;            //!< identifier of the key to be used to decrypt the key to be imported (Key Encryption Key), only AES-256 key can be uses as KEK. It must be 0 if the HSM_OP_MANAGE_KEY_FLAGS_PART_UNIQUE_ROOT_KEK or HSM_OP_MANAGE_KEY_FLAGS_COMMON_ROOT_KEK flags are set.
+    uint32_t kek_identifier;            //!< identifier of the key to be used to decrypt the key to be imported (Key Encryption Key), only AES-256 key can be uses as KEK. It must be 0 if the HSM_OP_MANAGE_KEY_FLAGS_PART_UNIQUE_ROOT_KEK or HSM_OP_MANAGE_KEY_FLAGS_COMMON_ROOT_KEK or HSM_OP_MANAGE_KEY_FLAGS_OTP_ROOT_KEK flags are set.
     uint16_t input_size;                //!< length in bytes of the input key area. It must be eqaul to the length of the IV (12 bytes) + ciphertext + Tag (16 bytes). It must be 0 in case of delete operation.
     hsm_op_manage_key_flags_t flags;    //!< bitmap specifying the operation properties.
     hsm_key_type_t key_type;            //!< indicates the type of the key to be managed.
@@ -299,6 +299,16 @@ typedef struct {
  *  - Tag = 16 bytes
  *  - Plaintext: key to be imported
  *
+ * In case the HSM_OP_MANAGE_KEY_FLAGS_OTP_ROOT_KEK is set, the OTP Root KEK is fetched from the OTP Space and used to derive a dedicated KEK per security enclave.
+ * The derivation scheme used is approved by NIST SP 800-108 "Recommendation for Key Derivation Using Pseudorandom Functions" and defined as following:
+ *    -  key derivation scheme: CMAC based KDF in counter mode
+ *    -  Number of Iterations: 2 iterations (256 bits generated)
+ *    -  Label : "SECO HSM" or "V2X HSM" depending on the session priority and the operating mode used at the open session level
+ *    -  Context : "NXP IMX8 DXL B0 OTP ROOT KEK"
+ * The OTP Root KEK is different from OEM open to OEM closed Lifecycle:
+ *    - OEM Open Lifecyle: this facsimile must be used "693f25bd6a299107cf7220b9ab504111fd3003bfe9aa38294262c3abab372790".
+ *    - OEM Closed Lifecyle: the OTP Root KEK generated as a valid AES-256 key and seculry provisoned by the OEM is used. In case the OTP Root KEK has not been provisoned, the HSM_OP_MANAGE_KEY_FLAGS_OTP_ROOT_KEK can't be used.
+ *
  * The hsm_manage_key_ext function (described separately) allows additional settings when importing keys.  When using the hsm_manage_key function to import a key, all additional settings are set to their default values
  *
  * User can call this function only after having opened a key management service flow
@@ -314,12 +324,13 @@ hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl, op_manage_key_args_t *arg
 #define HSM_OP_MANAGE_KEY_FLAGS_DELETE                                  ((hsm_op_manage_key_flags_t)(1u << 2))   //!< Delete an existing key.
 #define HSM_OP_MANAGE_KEY_FLAGS_PART_UNIQUE_ROOT_KEK                    ((hsm_op_manage_key_flags_t)(1u << 3))   //!< The key to be imported is encrypted using the part-unique root kek.
 #define HSM_OP_MANAGE_KEY_FLAGS_COMMON_ROOT_KEK                         ((hsm_op_manage_key_flags_t)(1u << 4))   //!< The key to be imported is encrypted using the common root kek.
+#define HSM_OP_MANAGE_KEY_FLAGS_OTP_ROOT_KEK                                 ((hsm_op_manage_key_flags_t)(1u << 5))   //!< The key to be imported is encrypted using the otp root kek.
 #define HSM_OP_MANAGE_KEY_FLAGS_STRICT_OPERATION                        ((hsm_op_manage_key_flags_t)(1u << 7))   //!< The request is completed only when the new key has been written in the NVM. This is only applicable for persistent key.
 
 typedef uint8_t hsm_op_manage_key_ext_flags_t;
 typedef struct {
     uint32_t *key_identifier;           //!< pointer to the identifier of the key to be used for the operation.\n In case of create operation the new key identifier will be stored in this location.
-    uint32_t kek_identifier;            //!< identifier of the key to be used to decrypt the key to be imported (Key Encryption Key), only AES-256 key can be uses as KEK. It must be 0 if the HSM_OP_MANAGE_KEY_FLAGS_PART_UNIQUE_ROOT_KEK or HSM_OP_MANAGE_KEY_FLAGS_COMMON_ROOT_KEK flags are set.
+    uint32_t kek_identifier;            //!< identifier of the key to be used to decrypt the key to be imported (Key Encryption Key), only AES-256 key can be uses as KEK. It must be 0 if the HSM_OP_MANAGE_KEY_FLAGS_PART_UNIQUE_ROOT_KEK or HSM_OP_MANAGE_KEY_FLAGS_COMMON_ROOT_KEK or HSM_OP_MANAGE_KEY_FLAGS_OTP_ROOT_KEK flags are set.
     uint16_t input_size;                //!< length in bytes of the input key area. It must be eqaul to the length of the IV (12 bytes) + ciphertext + Tag (16 bytes). It must be 0 in case of delete operation.
     hsm_op_manage_key_flags_t flags;    //!< bitmap specifying the operation properties.
     hsm_key_type_t key_type;            //!< indicates the type of the key to be managed.
@@ -448,6 +459,7 @@ hsm_err_t hsm_close_key_management_service(hsm_hdl_t key_management_hdl);
  *
  * - \ref hsm_butterfly_key_expansion: This feature is disabled when part is running in FIPS approved mode. Any call to this API will results in a HSM_FEATURE_DISABLED error.
  * - \ref hsm_key_type_t of op_butt_key_exp_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256 and HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 are supported.
+ * - \ref HSM_OP_MANAGE_KEY_FLAGS_OTP_ROOT_KEK is not supported.
  */
 
 /**
@@ -463,6 +475,7 @@ hsm_err_t hsm_close_key_management_service(hsm_hdl_t key_management_hdl);
  *
  * - \ref hsm_key_type_t of op_butt_key_exp_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256, HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 and HSM_KEY_TYPE_DSA_SM2_FP_256 are supported.
  *
+ * - \ref HSM_OP_MANAGE_KEY_FLAGS_OTP_ROOT_KEK is only supported on the B0 revision of DXL.
  */
 /** @} end of key management service flow */
 
