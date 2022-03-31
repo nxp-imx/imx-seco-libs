@@ -1492,9 +1492,9 @@ int main(int argc, char *argv[])
         printf(" --> FAILURE\n");
     }
 
-    printf("\n---------------------------------------------------\n");
-    printf("Key injection with the OTP Root KEK \n");
-    printf("---------------------------------------------------\n");
+    printf("\n-------------------------------------------------------------\n");
+    printf("Key injection with the OTP Root KEK - supported only on DXL B0 \n");
+    printf("---------------------------------------------------------------\n");
 
     mng_key_args.key_identifier = &key_id;
     mng_key_args.kek_identifier = 0;

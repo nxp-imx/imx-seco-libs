@@ -274,7 +274,7 @@ hsm_err_t hsm_generate_key_ext(hsm_hdl_t key_management_hdl, op_generate_key_ext
 typedef uint8_t hsm_op_manage_key_flags_t;
 typedef struct {
     uint32_t *key_identifier;           //!< pointer to the identifier of the key to be used for the operation.\n In case of create operation the new key identifier will be stored in this location.
-    uint32_t kek_identifier;            //!< identifier of the key to be used to decrypt the key to be imported (Key Encryption Key), only AES-256 key can be uses as KEK. It must be 0 if the HSM_OP_MANAGE_KEY_FLAGS_PART_UNIQUE_ROOT_KEK or HSM_OP_MANAGE_KEY_FLAGS_COMMON_ROOT_KEK or HSM_OP_MANAGE_KEY_FLAGS_OTP_ROOT_KEK flags are set.
+    uint32_t kek_identifier;            //!< identifier of the key to be used to decrypt the key to be imported (Key Encryption Key), only AES-256 key can be used as KEK. It must be 0 if the HSM_OP_MANAGE_KEY_FLAGS_PART_UNIQUE_ROOT_KEK or HSM_OP_MANAGE_KEY_FLAGS_COMMON_ROOT_KEK or HSM_OP_MANAGE_KEY_FLAGS_OTP_ROOT_KEK flags are set.
     uint16_t input_size;                //!< length in bytes of the input key area. It must be eqaul to the length of the IV (12 bytes) + ciphertext + Tag (16 bytes). It must be 0 in case of delete operation.
     hsm_op_manage_key_flags_t flags;    //!< bitmap specifying the operation properties.
     hsm_key_type_t key_type;            //!< indicates the type of the key to be managed.
@@ -305,8 +305,9 @@ typedef struct {
  *    -  Number of Iterations: 2 iterations (256 bits generated)
  *    -  Label : "SECO HSM" or "V2X HSM" depending on the session priority and the operating mode used at the open session level
  *    -  Context : "NXP IMX8 DXL B0 OTP ROOT KEK"
- * The OTP Root KEK is different from OEM open to OEM closed Lifecycle:
- *    - OEM Open Lifecyle: this facsimile must be used "693f25bd6a299107cf7220b9ab504111fd3003bfe9aa38294262c3abab372790".
+ * The OTP Root KEK is different from OEM open to OEM closed Lifecycle;
+ *    - OEM Open Lifecyle: this facsimile must be used \n
+ *      "693f25bd6a299107cf7220b9ab504111fd3003bfe9aa38294262c3abab372790".
  *    - OEM Closed Lifecyle: the OTP Root KEK generated as a valid AES-256 key and seculry provisoned by the OEM is used. In case the OTP Root KEK has not been provisoned, the HSM_OP_MANAGE_KEY_FLAGS_OTP_ROOT_KEK can't be used.
  *
  * The hsm_manage_key_ext function (described separately) allows additional settings when importing keys.  When using the hsm_manage_key function to import a key, all additional settings are set to their default values
@@ -330,7 +331,7 @@ hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl, op_manage_key_args_t *arg
 typedef uint8_t hsm_op_manage_key_ext_flags_t;
 typedef struct {
     uint32_t *key_identifier;           //!< pointer to the identifier of the key to be used for the operation.\n In case of create operation the new key identifier will be stored in this location.
-    uint32_t kek_identifier;            //!< identifier of the key to be used to decrypt the key to be imported (Key Encryption Key), only AES-256 key can be uses as KEK. It must be 0 if the HSM_OP_MANAGE_KEY_FLAGS_PART_UNIQUE_ROOT_KEK or HSM_OP_MANAGE_KEY_FLAGS_COMMON_ROOT_KEK or HSM_OP_MANAGE_KEY_FLAGS_OTP_ROOT_KEK flags are set.
+    uint32_t kek_identifier;            //!< identifier of the key to be used to decrypt the key to be imported (Key Encryption Key), only AES-256 key can be used as KEK. It must be 0 if the HSM_OP_MANAGE_KEY_FLAGS_PART_UNIQUE_ROOT_KEK or HSM_OP_MANAGE_KEY_FLAGS_COMMON_ROOT_KEK or HSM_OP_MANAGE_KEY_FLAGS_OTP_ROOT_KEK flags are set.
     uint16_t input_size;                //!< length in bytes of the input key area. It must be eqaul to the length of the IV (12 bytes) + ciphertext + Tag (16 bytes). It must be 0 in case of delete operation.
     hsm_op_manage_key_flags_t flags;    //!< bitmap specifying the operation properties.
     hsm_key_type_t key_type;            //!< indicates the type of the key to be managed.
