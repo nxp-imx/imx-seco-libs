@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 NXP
+ * Copyright 2019-2022 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -1903,6 +1903,45 @@ hsm_err_t hsm_key_generic_crypto(hsm_hdl_t key_generic_crypto_hdl, op_key_generi
  */
 
 /** @} end of Key generic crypto service flow */
+
+/**
+ *  @defgroup group23 Run FIPS selftests
+ * @{
+ */
+typedef struct {
+    uint32_t selftest_bitmap;           //!< Bitmap of selftests to run, refer to FIPS specific documentation for definitions.
+} op_run_fips_selftests_args_t;
+/**
+ *
+ * Perform selected FIPS selftests if device is running in FIPS approved mode.  Any selftest failure will cause device to abort (locked state requiring reboot).
+ *
+ * \param session_hdl handle identifying the current session.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+
+hsm_err_t hsm_run_fips_selftests(hsm_hdl_t session_hdl, op_run_fips_selftests_args_t *args);
+
+/**
+ *\addtogroup qxp_specific
+ * \ref group23
+ *
+ * - \ref This API is not supported.
+ *
+ */
+
+/**
+ *\addtogroup dxl_specific
+ * \ref group23
+ *
+ * \ref This API only supported on DXL B0 device.
+ *
+ */
+
+/** @} end of Run FIPS selftests */
+
+
 
 /** \}*/
 #endif

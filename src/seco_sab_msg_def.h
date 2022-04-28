@@ -49,6 +49,7 @@
 #define SAB_PUB_KEY_DECOMPRESSION_REQ           0x14u
 #define SAB_ECIES_ENC_REQ                       0x15u
 #define SAB_GET_INFO_REQ                        0x16u
+#define SAB_RUN_FIPS_SELFTESTS_REQ              0x17u
 
 #define SAB_RNG_OPEN_REQ                        0x20u
 #define SAB_RNG_CLOSE_REQ                       0x21u
@@ -1393,6 +1394,16 @@ struct sab_key_generic_crypto_srv_msg {
 };
 
 struct sab_key_generic_crypto_srv_rsp {
+    struct sab_mu_hdr header;
+    uint32_t rsp_code;
+};
+
+struct sab_run_fips_selftests_msg{
+    struct sab_mu_hdr header;
+    uint32_t        selftest_bitmap;
+};
+
+struct sab_run_fips_selftests_rsp{
     struct sab_mu_hdr header;
     uint32_t rsp_code;
 };

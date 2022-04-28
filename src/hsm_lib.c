@@ -3026,3 +3026,47 @@ hsm_err_t hsm_key_generic_crypto(hsm_hdl_t key_generic_crypto_hdl, op_key_generi
 
 	return err;
 }
+
+hsm_err_t hsm_run_fips_selftests(hsm_hdl_t session_hdl, op_run_fips_selftests_args_t *args)
+{
+	struct sab_run_fips_selftests_msg cmd;
+	struct sab_run_fips_selftests_rsp rsp;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+	struct hsm_session_hdl_s *sess_ptr;
+	int32_t error = 1;
+
+	do {
+		if (args == NULL) {
+			break;
+		}
+
+		sess_ptr = session_hdl_to_ptr(session_hdl);
+		if (sess_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		/* Fill the self_test command */
+		seco_fill_cmd_msg_hdr(&cmd.header,
+			SAB_RUN_FIPS_SELFTESTS_REQ,
+			(uint32_t)sizeof(struct sab_run_fips_selftests_msg),
+			sess_ptr->mu_type);
+
+		cmd.selftest_bitmap = args->selftest_bitmap;
+
+		/* Send the message to Seco. */
+		error = seco_send_msg_and_get_resp(sess_ptr->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_run_fips_selftests_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_run_fips_selftests_rsp));
+		if (error != 0) {
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp.rsp_code);
+
+	} while (false);
+
+	return err;
+}
