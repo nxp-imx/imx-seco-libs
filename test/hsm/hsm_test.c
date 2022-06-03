@@ -193,7 +193,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	open_svc_cipher_args_t open_cipher_args;
 	op_cipher_one_go_args_t cipher_args;
 	hsm_hdl_t cipher_hdl;
-	uint8_t ciphered_data[32 + 16 + 12]; /* Include space for CCM tag + iv */
+	uint8_t ciphered_data[32];
 	uint8_t deciphered_data[32];
 	uint8_t iv_data[16] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -321,7 +321,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	cipher_args.input = hash_data;
 	cipher_args.output = ciphered_data;
 	cipher_args.input_size = sizeof(hash_data);
-	cipher_args.output_size = 32;
+	cipher_args.output_size = sizeof(ciphered_data);
 	hsmret = hsm_cipher_one_go(cipher_hdl, &cipher_args);
 	printf("AES CBC hsm_cipher_one_go ret:0x%x\n", hsmret);
 
@@ -334,7 +334,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_DECRYPT;
 	cipher_args.input = ciphered_data;
 	cipher_args.output = deciphered_data;
-	cipher_args.input_size = 32;
+	cipher_args.input_size = sizeof(ciphered_data);
 	cipher_args.output_size = sizeof(deciphered_data);
 	hsmret = hsm_cipher_one_go(cipher_hdl, &cipher_args);
 	printf("AES CBC hsm_cipher_one_go ret:0x%x\n", hsmret);
@@ -345,66 +345,30 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 
 	memset(&cipher_args, 0, sizeof(cipher_args));
 	cipher_args.key_identifier = sym_key_id;
-	cipher_args.iv = iv_data;
-	cipher_args.iv_size = 4;
-	cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_CCM;
-	cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT | HSM_CIPHER_ONE_GO_FLAGS_GENERATE_COUNTER_IV;
+	cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_ECB;
+	cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT;
 	cipher_args.input = hash_data;
 	cipher_args.output = ciphered_data;
 	cipher_args.input_size = sizeof(hash_data);
 	cipher_args.output_size = sizeof(ciphered_data);
 	hsmret = hsm_cipher_one_go(cipher_hdl, &cipher_args);
-	printf("AES CCM counter IV hsm_cipher_one_go ret:0x%x\n", hsmret);
+	printf("AES ECB hsm_cipher_one_go ret:0x%x\n", hsmret);
 
 	memset(&deciphered_data, 0, sizeof(deciphered_data));
 	memset(&cipher_args, 0, sizeof(cipher_args));
 	cipher_args.key_identifier = sym_key_id;
-	cipher_args.iv = &ciphered_data[32 + 16];
-	cipher_args.iv_size = 12;
-	cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_CCM;
+	cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_ECB;
 	cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_DECRYPT;
 	cipher_args.input = ciphered_data;
 	cipher_args.output = deciphered_data;
-	cipher_args.input_size = 32 + 16;
+	cipher_args.input_size = sizeof(ciphered_data);
 	cipher_args.output_size = sizeof(deciphered_data);
 	hsmret = hsm_cipher_one_go(cipher_hdl, &cipher_args);
-	printf("AES CCM counter IV hsm_cipher_one_go ret:0x%x\n", hsmret);
+	printf("AES ECB hsm_cipher_one_go ret:0x%x\n", hsmret);
 	if (memcmp(hash_data, deciphered_data, sizeof(hash_data)) == 0)
-		printf("AES CCM counter IV Decrypted data matches encrypted data [PASS]\n");
+		printf("AES ECB Decrypted data matches encrypted data [PASS]\n");
 	else
-		printf("AES CCM counter IV Decrypted data doesn't match encrypted data [FAIL]\n");
-
-	memset(&cipher_args, 0, sizeof(cipher_args));
-	cipher_args.key_identifier = sym_key_id;
-	cipher_args.iv = NULL;
-	cipher_args.iv_size = 0;
-	cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_CCM;
-	cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT | HSM_CIPHER_ONE_GO_FLAGS_GENERATE_FULL_IV;
-	cipher_args.input = hash_data;
-	cipher_args.output = ciphered_data;
-	cipher_args.input_size = sizeof(hash_data);
-	cipher_args.output_size = sizeof(ciphered_data);
-	hsmret = hsm_cipher_one_go(cipher_hdl, &cipher_args);
-	printf("AES CCM generate IV hsm_cipher_one_go ret:0x%x\n", hsmret);
-
-	memset(&deciphered_data, 0, sizeof(deciphered_data));
-	memset(&cipher_args, 0, sizeof(cipher_args));
-	cipher_args.key_identifier = sym_key_id;
-	cipher_args.iv = &ciphered_data[32 + 16];
-	cipher_args.iv_size = 12;
-	cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_CCM;
-	cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_DECRYPT;
-	cipher_args.input = ciphered_data;
-	cipher_args.output = deciphered_data;
-	cipher_args.input_size = 32 + 16;
-	cipher_args.output_size = sizeof(deciphered_data);
-	hsmret = hsm_cipher_one_go(cipher_hdl, &cipher_args);
-	printf("AES CCM generate IV hsm_cipher_one_go ret:0x%x\n", hsmret);
-	if (memcmp(hash_data, deciphered_data, sizeof(hash_data)) == 0)
-		printf("AES CCM generate IV Decrypted data matches encrypted data [PASS]\n");
-	else
-		printf("AES CCM generate IV Decrypted data doesn't match encrypted data [FAIL]\n");
-
+		printf("AES ECB Decrypted data doesn't match encrypted data [FAIL]\n");
 
 	hsmret = hsm_close_cipher_service (cipher_hdl);
 	printf("hsm_close_cipher_service ret:0x%x\n", hsmret);
