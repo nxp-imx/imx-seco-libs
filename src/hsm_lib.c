@@ -308,6 +308,15 @@ hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl,
 			break;
 		}
 
+		if (args->flags & HSM_SVC_KEY_STORE_FLAGS_EXCLUSIVE_CMAC_CRYPTO_ENGINE) {
+			/* Get a SECURE RAM partition to be used as shared buffer */
+			err = sab_get_shared_buffer(sess_ptr->phdl, sess_ptr->session_hdl, sess_ptr->mu_type);
+			if (err != SAB_SUCCESS_STATUS) {
+				delete_service(serv_ptr);
+				break;
+			}
+		}
+
 		*key_store_hdl = serv_ptr->service_hdl;
 	} while (false);
 
@@ -2345,21 +2354,35 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl, op_mac_one_go_args_t* args, hsm_mac_
 			mac_size_bytes = args->mac_size;
 		}
 
-		cmd.payload_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		if (args->flags & HSM_OP_MAC_ONE_GO_FLAGS_EXCLUSIVE_CMAC_CRYPTO_ENGINE) {
+
+			cmd.payload_address = (uint16_t)(seco_os_abs_data_buf(serv_ptr->session->phdl, 
 											args->payload,
-											args->payload_size,
-											DATA_BUF_IS_INPUT);
-		if ((args->flags & HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION) == HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION) {
-			cmd.mac_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+											args->payload_size, 
+											DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK);
+			cmd.mac_address = (uint16_t)(seco_os_abs_data_buf(serv_ptr->session->phdl, 
 											args->mac,
-											mac_size_bytes,
-											0u);
+											mac_size_bytes, 
+											DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK);
+
 		}
 		else {
-			cmd.mac_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
-											args->mac,
-											mac_size_bytes,
-											DATA_BUF_IS_INPUT);
+			cmd.payload_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+												args->payload,
+												args->payload_size,
+												DATA_BUF_IS_INPUT);
+			if ((args->flags & HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION) == HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION) {
+				cmd.mac_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+												args->mac,
+												mac_size_bytes,
+												0u);
+			}
+			else {
+				cmd.mac_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+												args->mac,
+												mac_size_bytes,
+												DATA_BUF_IS_INPUT);
+			}
 		}
 		cmd.payload_size = args->payload_size;
 		cmd.mac_size = args->mac_size;
