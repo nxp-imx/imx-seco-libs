@@ -6,5 +6,5 @@
 v2x_test.int
 v2x_vfs_module.gpj	[Program]
 v2x_seco_mgr.gpj	[Program]
-v2x_test_as.gpj	        [Program]
+v2x_test_as.gpj	    [Program]
 v2x_test_kernel.gpj	[Program]

@@ -211,7 +211,7 @@ int prepare_fs(void)
     while (TestAndSet(&api_init, 0U, 1U) != Success) {
         usleep(100);
     }
-    if (! fs_initialisated) {
+    if (!fs_initialisated) {
         WaitForFileSystemInitialization();
         dir = opendir(SECO_OS_CRYPTO_DIR);
         if (dir == NULL) {

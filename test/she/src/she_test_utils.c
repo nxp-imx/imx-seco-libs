@@ -1,6 +1,4 @@
-/*	$NetBSD: fgetln.c,v 1.9 2008/04/29 06:53:03 martin Exp $	*/
-
-/*-
+/*
 * Copyright (c) 2011 The NetBSD Foundation, Inc.
 * Copyright 2020 NXP
 * All rights reserved.
@@ -48,7 +46,9 @@ ssize_t getline(char **buf, size_t *bufsiz, FILE *fp)
         }
     }
 
-    for (ptr = *buf, eptr = (*buf + *bufsiz);;) {
+    ptr = *buf;
+    eptr = (*buf + *bufsiz);
+    while (true) {
         int c = fgetc(fp);
         if (c == -1) {
             if (feof(fp)) {
