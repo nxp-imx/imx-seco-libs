@@ -1,3 +1,5 @@
+/*	$NetBSD: fgetln.c,v 1.9 2008/04/29 06:53:03 martin Exp $	*/
+
 /*
  * Copyright (c) 2011 The NetBSD Foundation, Inc.
  * All rights reserved.
