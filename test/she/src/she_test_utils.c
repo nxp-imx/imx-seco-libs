@@ -35,7 +35,6 @@
 #include <unistd.h>
 
 #if defined(__QNXNTO__) || defined(__ghs__)
-
 ssize_t getline(char **buf, size_t *bufsiz, FILE *fp)
 {
     char *ptr, *eptr;
