@@ -492,6 +492,7 @@ int32_t seco_os_abs_storage_write_chunk(struct seco_os_abs_hdl *phdl, uint8_t *s
     return l;
 }
 
+/* Read a subset of data from the non volatile storage. */
 int32_t seco_os_abs_storage_read_chunk(struct seco_os_abs_hdl *phdl, uint8_t *dst, uint32_t size, uint64_t blob_id)
 {
     int32_t fd = -1;
@@ -552,6 +553,10 @@ void seco_os_abs_free(void *ptr)
 
 void seco_os_abs_start_system_rng(struct seco_os_abs_hdl *phdl)
 {
+    /*
+     * Nothing to do. The SCU RPC is automatically called at boot time.
+     * No need to call it again from here.
+     */
 }
 
 int32_t seco_os_abs_send_signed_message(struct seco_os_abs_hdl *phdl, uint8_t *signed_message, uint32_t msg_len)

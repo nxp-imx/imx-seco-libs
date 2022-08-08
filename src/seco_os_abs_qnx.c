@@ -459,6 +459,7 @@ int32_t seco_os_abs_storage_write_chunk(struct seco_os_abs_hdl *phdl, uint8_t *s
     return l;
 }
 
+/* Read a subset of data from the non volatile storage. */
 int32_t seco_os_abs_storage_read_chunk(struct seco_os_abs_hdl *phdl, uint8_t *dst, uint32_t size, uint64_t blob_id)
 {
     int32_t fd = -1;
@@ -534,7 +535,9 @@ int32_t seco_os_abs_send_signed_message(struct seco_os_abs_hdl *phdl, uint8_t *s
     struct seco_mu_ioctl_signed_message msg;
     int32_t                             err = 0;
     int                                 ret;
-    iov_t                               iov[2];
+    int8_t                              send_data_num =2;
+    int8_t                              recv_data_num =1;
+    iov_t                               iov[send_data_num];
 
     msg.message = signed_message;
     msg.msg_size = msg_len;
@@ -545,8 +548,8 @@ int32_t seco_os_abs_send_signed_message(struct seco_os_abs_hdl *phdl, uint8_t *s
 
     ret = devctlv(phdl->fd,
                   SECO_MU_IOCTL_SIGNED_MESSAGE,
-                  2,
-                  1,
+                  send_data_num,
+                  recv_data_num,
                   iov,
                   iov,
                   (int *)&err);
