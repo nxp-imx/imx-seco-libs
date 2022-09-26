@@ -62,13 +62,13 @@ uint32_t she_test_stop_storage_manager(test_struct_t *testCtx, FILE *fp)
 {
     uint32_t fails = 0;
 
-    seco_nvm_close_session();
-
     if (nvm_status != NVM_STATUS_STOPPED) {
         if (pthread_cancel(testCtx->tid) != 0) {
             fails = 1;
         }
     }
+
+    seco_nvm_close_session();
 
     return fails;
 }
