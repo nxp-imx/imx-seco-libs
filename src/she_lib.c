@@ -205,7 +205,11 @@ static uint32_t she_storage_create_generic(uint32_t key_storage_identifier, uint
         seco_os_abs_memset((uint8_t *)hdl, 0u, (uint32_t)sizeof(struct she_hdl_s));
 
         /* Open the SHE session on the SHE kernel driver */
+#ifdef SHE_V2X
+        hdl->mu_type = MU_CHANNEL_V2X_SHE;
+#else
         hdl->mu_type = MU_CHANNEL_SECO_SHE;
+#endif
         hdl->phdl = seco_os_abs_open_mu_channel(hdl->mu_type, &mu_params);
         if (hdl->phdl == NULL) {
             break;
@@ -300,7 +304,11 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t aut
         seco_os_abs_memset((uint8_t *)hdl, 0u, (uint32_t)sizeof(struct she_hdl_s));
 
         /* Open the SHE session on the MU */
+#ifdef SHE_V2X
+        hdl->mu_type = MU_CHANNEL_V2X_SHE;
+#else
         hdl->mu_type = MU_CHANNEL_SECO_SHE;
+#endif
         hdl->phdl = seco_os_abs_open_mu_channel(hdl->mu_type, &mu_params);
         if (hdl->phdl == NULL) {
             break;
@@ -321,11 +329,13 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t aut
             break;
         }
 
+#ifndef SHE_V2X
         /* Get a SECURE RAM partition to be used as shared buffer */
         err = sab_get_shared_buffer(hdl->phdl, hdl->session_handle, hdl->mu_type);
         if (err != SAB_SUCCESS_STATUS) {
             break;
         }
+#endif
         /* Get the access to the SHE keystore */
         err = sab_open_key_store_command(hdl->phdl,
                                          hdl->session_handle,

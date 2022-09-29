@@ -30,6 +30,9 @@ seco_nvm_manager.a: seco_nvm_manager.o
 ifdef DEBUG
 DEFINES=-DDEBUG
 endif
+ifdef SHE_V2X
+DEFINES=-DSHE_V2X
+endif
 HSM_TEST_OBJ=$(wildcard test/hsm/*.c)
 hsm_test: $(HSM_TEST_OBJ) hsm_lib.a seco_nvm_manager.a
 	$(CC) $^  -o $@ -I include -I include/hsm $(CFLAGS) -lpthread -lz $(DEFINES) $(GCOV_FLAGS)
