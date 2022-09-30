@@ -1,4 +1,5 @@
-
+TEST PROCEDURE FOR SHE SECO MU
+------------------------------
 Test procedure (with storage):
 
 root@imx8dxlevk:~# rm -rf /etc/seco_she_nvm
@@ -13,3 +14,20 @@ root@imx8dxlevk:~# rm -rf /etc/seco_she_nvm
 root@imx8dxlevk:~# sync
 <reboot device>
 root@imx8dxlevk:~# she_test she_sanity_no_storage.shx
+
+TEST PROCEDURE FOR SHE V2X MU
+-----------------------------
+Test procedure (with storage):
+
+root@imx8dxlevk:~# rm -rf /etc/v2x_she_nvm
+root@imx8dxlevk:~# sync
+<reboot device>
+root@imx8dxlevk:~# she_test she_v2x_populate_storage.shx
+root@imx8dxlevk:~# she_test she_v2x_sanity_algos.shx
+
+Test procedure (no storage):
+
+root@imx8dxlevk:~# rm -rf /etc/v2x_she_nvm
+root@imx8dxlevk:~# sync
+<reboot device>
+root@imx8dxlevk:~# she_test she_v2x_sanity_no_storage.shx
