@@ -29,8 +29,9 @@ void she_print_infos(struct she_hdl_s *hdl)
     uint16_t chip_monotonic_counter;
     uint16_t chip_life_cycle;
     uint32_t she_version;
+    uint8_t fips_mode;
 
-    err = she_get_info(hdl, &user_sab_id, chip_unique_id, &chip_monotonic_counter, &chip_life_cycle, &she_version);
+    err = she_get_info(hdl, &user_sab_id, chip_unique_id, &chip_monotonic_counter, &chip_life_cycle, &she_version, &fips_mode);
 
     if (err == ERC_NO_ERROR) {
         printf("SHE infos: user_sab_id:             0x%08x\n", user_sab_id);
@@ -46,6 +47,7 @@ void she_print_infos(struct she_hdl_s *hdl)
         printf("SHE infos: chip_monotonic_counter:  0x%04x\n", chip_monotonic_counter);
         printf("SHE infos: chip_life_cycle:         0x%04x\n", chip_life_cycle);
         printf("SHE infos: she_version:             0x%08x\n", she_version);
+        printf("SHE infos: fips_mode:               0x%02x\n", fips_mode);
     } else {
         printf("SHE infos error 0x%x\n", err);
         printf("SECO rating: 0x%x\n", she_get_last_rating_code(hdl));

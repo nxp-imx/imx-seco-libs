@@ -521,7 +521,7 @@ uint32_t she_get_last_rating_code(struct she_hdl_s *hdl);
  *
  * \return error code
  */
-she_err_t she_get_info(struct she_hdl_s *hdl, uint32_t *user_sab_id, uint8_t *chip_unique_id, uint16_t *chip_monotonic_counter, uint16_t *chip_life_cycle, uint32_t *she_version);
+she_err_t she_get_info(struct she_hdl_s *hdl, uint32_t *user_sab_id, uint8_t *chip_unique_id, uint16_t *chip_monotonic_counter, uint16_t *chip_life_cycle, uint32_t *she_version, uint8_t *fips_mode);
 /** @} end of get info group */
 
 #endif

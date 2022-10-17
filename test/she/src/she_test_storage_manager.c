@@ -27,11 +27,7 @@ static uint32_t nvm_status;
 
 static void *she_storage_thread(void *arg)
 {
-#ifdef SHE_V2X
-    seco_nvm_manager(NVM_FLAGS_V2X | NVM_FLAGS_SHE, &nvm_status);
-#else
     seco_nvm_manager(NVM_FLAGS_SHE, &nvm_status);
-#endif
 }
 
 

@@ -199,6 +199,7 @@ uint64_t seco_os_abs_data_buf(struct seco_os_abs_hdl *phdl, uint8_t *src, uint32
 #define DATA_BUF_IS_INPUT         0x01u
 #define DATA_BUF_USE_SEC_MEM      0x02u
 #define DATA_BUF_SHORT_ADDR       0x04u
+#define DATA_BUF_SHE_V2X          0x08u
 #define SEC_MEM_SHORT_ADDR_MASK   0xFFFFu
 
 /**

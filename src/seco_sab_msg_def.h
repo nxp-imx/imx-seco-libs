@@ -128,6 +128,7 @@
 #define SAB_SHE_GET_ID                          0xF5u
 #define SAB_SHE_GET_STATUS                      0xF6u
 #define SAB_FAST_MAC_REQ                        0xF7u
+#define SAB_SHE_FAST_MAC_MUBUFF_REQ             0xF9u
 #define SAB_SHE_KEY_UPDATE_EXT                  0xF8u
 
 #define GET_STATUS_CODE(rsp_code)               ((uint8_t)((rsp_code) & 0xFFu))
@@ -193,6 +194,21 @@ struct sab_she_fast_mac_msg {
     uint16_t data_offset;
     uint8_t mac_length;
     uint8_t flags;
+};
+
+struct sab_she_v2x_fast_mac_msg {
+    struct sab_mu_hdr hdr;
+    uint32_t she_utils_handle;
+    uint16_t key_id;
+    uint16_t data_length;
+    uint16_t rsrv;
+    uint8_t mac_length;
+    uint8_t flags;
+    uint32_t m1;
+    uint32_t m2;
+    uint32_t m3;
+    uint32_t m4;
+    uint32_t crc;
 };
 #define SAB_SHE_FAST_MAC_FLAGS_VERIFICATION    (1u)
 #define SAB_SHE_FAST_MAC_FLAGS_VERIF_BIT_LEN   (2u)

@@ -104,6 +104,9 @@ static void seco_nvm_open_session(uint8_t flags)
 {
     uint32_t err = SAB_FAILURE_STATUS;
     struct seco_mu_params mu_params;
+    uint32_t user_sab_id, she_version, version_ext;
+    uint16_t chip_monotonic_counter, chip_life_cycle;
+    uint8_t fips_mode, chip_unique_id;
 
     do {
         /* Check if structure is already in use */
@@ -112,15 +115,11 @@ static void seco_nvm_open_session(uint8_t flags)
         }
 
         /* Open the Storage session on the MU */
-        if ((flags & NVM_FLAGS_V2X) != 0u) {
-            if ((flags & NVM_FLAGS_SHE) != 0u) {
-                nvm_ctx.mu_type = MU_CHANNEL_V2X_SHE_NVM;
-            } else {
-                nvm_ctx.mu_type = MU_CHANNEL_V2X_HSM_NVM;
-            }
-        } else {
-            if ((flags & NVM_FLAGS_SHE) != 0u) {
+        if ((flags & NVM_FLAGS_SHE) != 0u) {
                 nvm_ctx.mu_type = MU_CHANNEL_SECO_SHE_NVM;
+        } else {
+            if ((flags & NVM_FLAGS_V2X) != 0u) {
+                nvm_ctx.mu_type = MU_CHANNEL_V2X_HSM_NVM;
             } else {
                 nvm_ctx.mu_type = MU_CHANNEL_SECO_HSM_NVM;
             }
@@ -144,6 +143,43 @@ static void seco_nvm_open_session(uint8_t flags)
         if (err != SAB_SUCCESS_STATUS) {
             nvm_ctx.session_handle = 0u;
             break;
+        }
+
+        if ((flags & NVM_FLAGS_SHE) != 0u) {
+            err = sab_get_info(nvm_ctx.phdl, nvm_ctx.session_handle, nvm_ctx.mu_type, &user_sab_id,
+                               &chip_unique_id, &chip_monotonic_counter, &chip_life_cycle,
+                               &she_version, &version_ext, &fips_mode);
+            if (GET_STATUS_CODE(err) != SAB_SUCCESS_STATUS) {
+                break;
+            }
+
+            if (fips_mode & 0x01) {
+                seco_nvm_close_session();
+
+                flags = flags | NVM_FLAGS_V2X;
+                nvm_ctx.mu_type = MU_CHANNEL_V2X_SHE_NVM;
+
+                nvm_ctx.phdl = seco_os_abs_open_mu_channel(nvm_ctx.mu_type, &mu_params);
+
+                if (nvm_ctx.phdl == NULL) {
+                    break;
+                }
+
+                /* Open the SAB session on the selected security enclave */
+                err = sab_open_session_command(nvm_ctx.phdl,
+                                               &nvm_ctx.session_handle,
+                                               nvm_ctx.mu_type,
+                                               mu_params.mu_id,
+                                               mu_params.interrupt_idx,
+                                               mu_params.tz,
+                                               mu_params.did,
+                                               SAB_OPEN_SESSION_PRIORITY_LOW,
+                                               ((flags & NVM_FLAGS_V2X) != 0u) ? SAB_OPEN_SESSION_LOW_LATENCY_MASK : 0U);
+                if (err != SAB_SUCCESS_STATUS) {
+                    nvm_ctx.session_handle = 0u;
+                    break;
+                }
+            }
         }
 
         /* Open the NVM STORAGE session on the selected security enclave */
