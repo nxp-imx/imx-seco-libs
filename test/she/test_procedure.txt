@@ -23,6 +23,12 @@ root@imx8dxlevk:~# rm -rf /etc/v2x_she_nvm
 root@imx8dxlevk:~# sync
 <reboot device>
 root@imx8dxlevk:~# she_test she_v2x_populate_storage.shx
+root@imx8dxlevk:~# she_test she_v2x_fast_mac.shx.shx
+
+root@imx8dxlevk:~# rm -rf /etc/v2x_she_nvm
+root@imx8dxlevk:~# sync
+<reboot device>
+root@imx8dxlevk:~# she_test she_v2x_populate_storage.shx
 root@imx8dxlevk:~# she_test she_v2x_sanity_algos.shx
 
 Test procedure (no storage):
